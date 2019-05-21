@@ -1,8 +1,10 @@
+#include <Wio3GforArduino.h>
+#include <libmrubyc.h>
+
 /* dumped in big endian order.
    use `mrbc -e` option for better performance on little endian CPU. */
 #include <stdint.h>
 extern const uint8_t code1[];
-
 const uint8_t
 #if defined __GNUC__
 __attribute__((aligned(4)))
@@ -27,7 +29,9 @@ code1[] = {
 0x69,0x6f,0x00,0x07,0x61,0x72,0x64,0x75,0x69,0x6e,0x6f,0x00,0x00,0x00,0x01,0x00,
 0x01,0x00,0x02,0x45,0x4e,0x44,0x00,0x00,0x00,0x00,0x08,
 };
-
+/* dumped in big endian order.
+   use `mrbc -e` option for better performance on little endian CPU. */
+#include <stdint.h>
 extern const uint8_t code2[];
 const uint8_t
 #if defined __GNUC__
@@ -49,8 +53,7 @@ code2[] = {
 0x65,0x70,0x00,0x45,0x4e,0x44,0x00,0x00,0x00,0x00,0x08,
 };
 
-#include <Wio3GforArduino.h>
-#include <libmrubyc.h>
+
 #define MEMSIZE (1024*30)
 static uint8_t mempool[MEMSIZE];
 
