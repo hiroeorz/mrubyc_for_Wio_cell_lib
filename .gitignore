@@ -1,2 +1,2 @@
 *~
-examples/multi_task/task.c
+examples/*/*.c
