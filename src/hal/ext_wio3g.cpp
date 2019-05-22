@@ -7,6 +7,7 @@
 
 */
 
+#include <limits.h>
 #include "libmrubyc.h"
 #include "ext.h"
 
@@ -81,8 +82,13 @@ static void class_wio_turn_on_or_reset(mrb_vm *vm, mrb_value *v, int argc)
     return;
   }
 
-  wio->TurnOnOrReset();
-  SET_TRUE_RETURN();
+  bool success = wio->TurnOnOrReset();
+
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
 }
 
 static void class_wio_turn_off(mrb_vm *vm, mrb_value *v, int argc)
@@ -93,8 +99,13 @@ static void class_wio_turn_off(mrb_vm *vm, mrb_value *v, int argc)
     return;
   }
 
-  wio->TurnOff();
-  SET_TRUE_RETURN();
+  bool success = wio->TurnOff();
+
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
 }
 
 static void class_wio_get_imei(mrb_vm *vm, mrb_value *v, int argc)
@@ -166,6 +177,78 @@ static void class_wio_get_phone_number(mrb_vm *vm, mrb_value *v, int argc)
   SET_RETURN(str);
 }
 
+static void class_wio_wait_for_cs_registration(mrb_vm *vm, mrb_value *v, int argc)
+{
+  long timeout = 120000;
+
+  if (argc > 1) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+  
+  if (argc == 1) {
+    timeout = GET_INT_ARG(1);
+  }
+
+  bool success = wio->WaitForCSRegistration(timeout);
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
+static void class_wio_get_received_signal_strength(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+  
+  int strength = wio->GetReceivedSignalStrength();
+
+  if (INT_MIN == strength) {
+    DEBUG_PRINT("!!! cannot get receive signal strength");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  SET_INT_RETURN(strength);
+}
+
+void set_time_to_obj(mrb_vm *vm, mrb_value *time_obj, const char* key, int val)
+{
+  mrbc_value key_obj = mrbc_string_new_cstr(vm, key);
+  mrbc_value val_obj = mrb_fixnum_value(val);
+  mrbc_hash_set(time_obj, &key_obj, &val_obj);  
+}
+
+static void class_wio_get_time(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  struct tm now;
+  if (!wio->GetTime(&now)) {
+    DEBUG_PRINT("!!! cannot get time");
+    SET_NIL_RETURN();
+  }
+
+  mrbc_value time_obj = mrbc_hash_new(vm, 6);
+  set_time_to_obj(vm, &time_obj, "year" , now.tm_year + 1900);
+  set_time_to_obj(vm, &time_obj, "month", now.tm_mon);
+  set_time_to_obj(vm, &time_obj, "day"  , now.tm_mday);
+  set_time_to_obj(vm, &time_obj, "hour" , now.tm_hour);
+  set_time_to_obj(vm, &time_obj, "min"  , now.tm_min);
+  set_time_to_obj(vm, &time_obj, "sec"  , now.tm_sec);
+  SET_RETURN(time_obj);
+}
+
 void define_wio3g_class()
 {
   wio = (Wio3G*)hal_get_modem_obj();
@@ -186,4 +269,8 @@ void define_wio3g_class()
   mrbc_define_method(0, class_wio, "get_imei", class_wio_get_imei);
   mrbc_define_method(0, class_wio, "get_imsi", class_wio_get_imsi);
   mrbc_define_method(0, class_wio, "get_phone_number", class_wio_get_phone_number);
+
+  mrbc_define_method(0, class_wio, "wait_for_cs_registration", class_wio_wait_for_cs_registration);
+  mrbc_define_method(0, class_wio, "get_received_signal_strength", class_wio_get_received_signal_strength);
+  mrbc_define_method(0, class_wio, "get_time", class_wio_get_time);
 }
