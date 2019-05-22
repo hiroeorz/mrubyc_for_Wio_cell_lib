@@ -249,13 +249,144 @@ static void class_wio_get_time(mrb_vm *vm, mrb_value *v, int argc)
   SET_RETURN(time_obj);
 }
 
+static void class_wio_activate(mrb_vm *vm, mrb_value *v, int argc)
+{
+  double wait_time = 120000;
+
+  if (argc > 1) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_FALSE_RETURN();
+    return;
+  }
+
+  if (argc == 1) { wait_time = GET_INT_ARG(1); }
+
+  bool success = wio->Activate("soracom.io", "sora", "sora", wait_time);
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
+static void class_wio_deactivate(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_FALSE_RETURN();
+    return;
+  }
+  
+  bool success = wio->Deactivate();
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }  
+}
+
+static void class_wio_tcp_socket_open(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 2) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  uint8_t *host = GET_STRING_ARG(1);
+  int port = GET_INT_ARG(2);
+  int connect_id = wio->SocketOpen((const char *)host, port, WIO_TCP);
+  SET_INT_RETURN(connect_id);
+}
+
+static void class_wio_udp_socket_open(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 2) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  uint8_t *host = GET_STRING_ARG(1);
+  int port = GET_INT_ARG(2);
+  int connect_id = wio->SocketOpen((const char *)host, port, WIO_UDP);
+  SET_INT_RETURN(connect_id);
+}
+
+static void class_wio_socket_send(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 2) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  int connect_id = GET_INT_ARG(1);
+  uint8_t *data = GET_STRING_ARG(2);
+  bool success = wio->SocketSend(connect_id, (const char *)data);
+
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }    
+}
+
+static void class_wio_socket_receive(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc == 2 || argc == 3) {
+  } else {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  int connect_id = GET_INT_ARG(1);
+  int data_size = GET_INT_ARG(2);
+  char data[data_size];
+  int bytes = 0;
+
+  if (argc == 2) {
+    bytes = wio->SocketReceive(connect_id, data, sizeof (data));
+  } else {
+    int timeout = GET_INT_ARG(3);
+    bytes = wio->SocketReceive(connect_id, data, sizeof (data), timeout);    
+  }
+
+  if (bytes == 0) {
+    SET_NIL_RETURN();
+    return;
+  }
+
+  mrbc_value recv = mrbc_string_new_cstr(vm, data);
+  SET_RETURN(recv);
+}
+
+static void class_wio_socket_close(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  int connect_id = GET_INT_ARG(1);
+  bool success = wio->SocketClose(connect_id);
+
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }    
+}
+
 void define_wio3g_class()
 {
   wio = (Wio3G*)hal_get_modem_obj();
 
   mrb_class *class_wio;
   class_wio = mrbc_define_class(0, "Wio", mrbc_class_object);
-  
+
   mrbc_define_method(0, class_wio, "init", class_wio_init);
   mrbc_define_method(0, class_wio, "power_supply_cellular", class_wio_power_supply_cellular);
   mrbc_define_method(0, class_wio, "power_supply_led", class_wio_power_supply_led);
@@ -273,4 +404,12 @@ void define_wio3g_class()
   mrbc_define_method(0, class_wio, "wait_for_cs_registration", class_wio_wait_for_cs_registration);
   mrbc_define_method(0, class_wio, "get_received_signal_strength", class_wio_get_received_signal_strength);
   mrbc_define_method(0, class_wio, "get_time", class_wio_get_time);
+
+  mrbc_define_method(0, class_wio, "activate", class_wio_activate);
+  mrbc_define_method(0, class_wio, "deactivate", class_wio_deactivate);
+  mrbc_define_method(0, class_wio, "tcp_socket_open", class_wio_tcp_socket_open);
+  mrbc_define_method(0, class_wio, "udp_socket_open", class_wio_udp_socket_open);
+  mrbc_define_method(0, class_wio, "socket_send", class_wio_socket_send);
+  mrbc_define_method(0, class_wio, "socket_receive", class_wio_socket_receive);
+  mrbc_define_method(0, class_wio, "socket_close", class_wio_socket_close);
 }
