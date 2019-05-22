@@ -10,6 +10,16 @@
 #include "libmrubyc.h"
 #include "ext.h"
 
+bool mrbc_trans_cppbool_value(mrbc_vtype tt)
+{
+  if (tt == MRBC_TT_TRUE) {
+    return true;
+  }
+
+  return false;
+}
+
+
 void mrbc_define_wio3g_methods(void)
 {
   define_wio3g_class();

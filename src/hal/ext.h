@@ -11,6 +11,9 @@
 #define __EXT_H_
 
 #include "value.h"
+
+bool mrbc_trans_cppbool_value(mrbc_vtype tt);
+
 void define_wio3g_class(void);
 void define_arduino_class(void);
 
