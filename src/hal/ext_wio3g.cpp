@@ -109,6 +109,12 @@ static void class_wio_get_imei(mrb_vm *vm, mrb_value *v, int argc)
   char imei[32];
 
   int len = wio->GetIMEI(imei, imei_size);
+  if (len < 0) {
+    DEBUG_PRINT("cannot get IMEI");
+    SET_NIL_RETURN();
+    return;
+  }
+
   imei[len] = '\0';
   mrbc_value str = mrbc_string_new_cstr(vm, (const char *)imei);
   SET_RETURN(str);
@@ -126,8 +132,37 @@ static void class_wio_get_imsi(mrb_vm *vm, mrb_value *v, int argc)
   char imsi[32];
 
   int len = wio->GetIMSI(imsi, imsi_size);
+  if (len < 0) {
+    DEBUG_PRINT("cannot get IMSI");
+    SET_NIL_RETURN();
+    return;
+  }
+
   imsi[len] = '\0';
   mrbc_value str = mrbc_string_new_cstr(vm, (const char *)imsi);
+  SET_RETURN(str);
+}
+
+static void class_wio_get_phone_number(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+  
+  int phone_number_size = 32;
+  char phone_number[32];
+
+  int len = wio->GetPhoneNumber(phone_number, phone_number_size);
+  if (len < 0) {
+    DEBUG_PRINT("cannot get phone number");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  phone_number[len] = '\0';
+  mrbc_value str = mrbc_string_new_cstr(vm, (const char *)phone_number);
   SET_RETURN(str);
 }
 
@@ -150,4 +185,5 @@ void define_wio3g_class()
 
   mrbc_define_method(0, class_wio, "get_imei", class_wio_get_imei);
   mrbc_define_method(0, class_wio, "get_imsi", class_wio_get_imsi);
+  mrbc_define_method(0, class_wio, "get_phone_number", class_wio_get_phone_number);
 }
