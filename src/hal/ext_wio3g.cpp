@@ -380,6 +380,52 @@ static void class_wio_socket_close(mrb_vm *vm, mrb_value *v, int argc)
   }    
 }
 
+static void class_wio_http_get(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1 && argc != 2) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  uint8_t *url = GET_STRING_ARG(1);
+
+  int data_size = 1024;
+  if (argc == 2) { data_size = GET_INT_ARG(2);}
+  
+  char data[data_size];
+  int recv_size = wio->HttpGet((const char *)url, data, sizeof (data));
+
+  if (recv_size < 0) {
+    SET_NIL_RETURN();
+    return;
+  }
+
+  mrbc_value recv = mrbc_string_new_cstr(vm, data);
+  SET_RETURN(recv);  
+}
+
+static void class_wio_http_post(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 2) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  uint8_t *url = GET_STRING_ARG(1);
+  uint8_t *post_data = GET_STRING_ARG(2);  
+  int response_code;
+  bool success = wio->HttpPost((const char *)url, (const char *)post_data, &response_code);
+
+  if (!success) {
+    SET_NIL_RETURN();
+    return;
+  }
+
+  SET_INT_RETURN(response_code);
+}
+
 void define_wio3g_class()
 {
   wio = (Wio3G*)hal_get_modem_obj();
@@ -412,4 +458,6 @@ void define_wio3g_class()
   mrbc_define_method(0, class_wio, "socket_send", class_wio_socket_send);
   mrbc_define_method(0, class_wio, "socket_receive", class_wio_socket_receive);
   mrbc_define_method(0, class_wio, "socket_close", class_wio_socket_close);
+  mrbc_define_method(0, class_wio, "http_get", class_wio_http_get);
+  mrbc_define_method(0, class_wio, "http_post", class_wio_http_post);
 }
