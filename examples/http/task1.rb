@@ -1,4 +1,4 @@
-puts "TCP Socket send recv from mruby/c"
+puts "HTTP GET and POST from mruby/c"
 
 wio = Wio.new
 wio.power_supply_cellular(true)
