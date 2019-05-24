@@ -1,5 +1,7 @@
 # Wio3G
 
+本ドキュメントは[SeeedJP/Wiki/Wio_3G_for_Arduino/reference-ja.md](https://github.com/SeeedJP/Wiki/blob/master/Wio_3G_for_Arduino/reference-ja.md)のmruby/c版になります。
+
 ## 初期化
 
 ```ruby
@@ -259,7 +261,7 @@ wio.activate
 
 #### 説明
 
-指定したAPN、ユーザー名、パスワードを使って、データ通信を有効にします。
+データ通信を有効にします。
 
 ### deactivate
 
