@@ -466,11 +466,13 @@ static void class_wio_send_ussd(mrb_vm *vm, mrb_value *v, int argc)
   char out[out_size];
   bool success = wio->SendUSSD((const char *)in, out, sizeof (out));
 
-  if (success) {
-    SET_TRUE_RETURN();
-  } else {
-    SET_FALSE_RETURN();
-  }    
+  if (!success) {
+    SET_NIL_RETURN();
+    return;
+  }
+
+  mrbc_value recv = mrbc_string_new_cstr(vm, out);
+  SET_RETURN(recv);
 }
 
 void define_wio3g_class()
