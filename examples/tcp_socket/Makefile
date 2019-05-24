@@ -5,7 +5,7 @@ SRC=../../mrblib/*.rb task1.rb
 OUTPUT=./mrblib.rb
 ARDUINO=/Applications/Arduino.app/Contents/MacOS/Arduino
 
-all: mrbc sketch
+all: mrbc
 
 mrbc:
 	cat $(SRC) > mrblib.rb
