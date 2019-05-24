@@ -1,6 +1,6 @@
 puts "HTTP GET and POST from mruby/c"
 
-wio = Wio.new
+wio = Wio3G.new
 wio.power_supply_cellular(true)
 wio.turn_on_or_reset
 sleep 3

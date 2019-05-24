@@ -1,6 +1,6 @@
 puts "LED control from mruby/c"
 
-wio = Wio.new
+wio = Wio3G.new
 wio.power_supply_led(true)
 rgb = [255, 0, 0]
 

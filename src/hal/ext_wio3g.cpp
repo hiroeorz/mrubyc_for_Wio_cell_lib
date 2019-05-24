@@ -480,7 +480,7 @@ void define_wio3g_class()
   wio = (Wio3G*)hal_get_modem_obj();
 
   mrb_class *class_wio;
-  class_wio = mrbc_define_class(0, "Wio", mrbc_class_object);
+  class_wio = mrbc_define_class(0, "Wio3G", mrbc_class_object);
 
   mrbc_define_method(0, class_wio, "initialize", class_wio_initialize);
   mrbc_define_method(0, class_wio, "power_supply_cellular", class_wio_power_supply_cellular);
