@@ -199,6 +199,28 @@ static void class_wio_wait_for_cs_registration(mrb_vm *vm, mrb_value *v, int arg
   }
 }
 
+static void class_wio_wait_for_ps_registration(mrb_vm *vm, mrb_value *v, int argc)
+{
+  long timeout = 120000;
+
+  if (argc > 1) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+  
+  if (argc == 1) {
+    timeout = GET_INT_ARG(1);
+  }
+
+  bool success = wio->WaitForPSRegistration(timeout);
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
 static void class_wio_get_received_signal_strength(mrb_vm *vm, mrb_value *v, int argc)
 {
   if (argc != 0) {
@@ -426,6 +448,31 @@ static void class_wio_http_post(mrb_vm *vm, mrb_value *v, int argc)
   SET_INT_RETURN(response_code);
 }
 
+static void class_wio_send_ussd(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1 && argc != 2) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  uint8_t *in = GET_STRING_ARG(1);
+  int out_size = 1024;
+
+  if (argc == 2) {
+    out_size = GET_INT_ARG(2);
+  }
+
+  char out[out_size];
+  bool success = wio->SendUSSD((const char *)in, out, sizeof (out));
+
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }    
+}
+
 void define_wio3g_class()
 {
   wio = (Wio3G*)hal_get_modem_obj();
@@ -448,6 +495,7 @@ void define_wio3g_class()
   mrbc_define_method(0, class_wio, "get_phone_number", class_wio_get_phone_number);
 
   mrbc_define_method(0, class_wio, "wait_for_cs_registration", class_wio_wait_for_cs_registration);
+  mrbc_define_method(0, class_wio, "wait_for_ps_registration", class_wio_wait_for_ps_registration);
   mrbc_define_method(0, class_wio, "get_received_signal_strength", class_wio_get_received_signal_strength);
   mrbc_define_method(0, class_wio, "get_time", class_wio_get_time);
 
@@ -460,4 +508,5 @@ void define_wio3g_class()
   mrbc_define_method(0, class_wio, "socket_close", class_wio_socket_close);
   mrbc_define_method(0, class_wio, "http_get", class_wio_http_get);
   mrbc_define_method(0, class_wio, "http_post", class_wio_http_post);
+  mrbc_define_method(0, class_wio, "send_ussd", class_wio_send_ussd);
 }
