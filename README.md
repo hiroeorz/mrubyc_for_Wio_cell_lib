@@ -28,6 +28,10 @@ $ cp -r mrubyc_Wio3G_Soracom_Edition  ~/Documents/Arduino/libraries/
 
 * `スケッチ` -> `ライブラリのインクルード` -> `mruby/c for Wio3G Soracom Edition` を選択。
 
+## Document
+
+* [Wio3Gクラス](https://github.com/hiroeorz/mrubyc_Wio3G_Soracom_Edition/blob/master/doc/Wio3G.md)
+
 ## Examples
 
 `examples` ディレクトリ以下にサンプルを置いています。
