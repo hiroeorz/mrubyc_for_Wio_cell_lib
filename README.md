@@ -40,5 +40,54 @@ $ make
 とすると、rubyのソースからCのソースを吐き出します。
 あとはArduino上でビルドし、Wio3Gにアップロードして実行してください。
 
+例として、Wio3Gに実装されているLEDを赤・緑・青で繰り返し光らせるためのRubyソースコードは以下のようになります。
+
+```ruby:examples/led/task1.rb
+wio = Wio.new
+wio.power_supply_led(true)
+rgb = [255, 0, 0]
+
+while true
+  last = rgb.pop
+  rgb.unshift(last)
+  wio.led_set_rgb(rgb[0], rgb[1], rgb[2])
+  sleep 0.3
+end
+```
+
+ここで、このディレクトリ内で `make` を実行すると `task.c` が生成されます。
+この `task.c` を読み込んで実行するArduinoスケッチは以下のようになります。
+
+```c++:led.ino
+#include <Wio3GforArduino.h>
+#include <libmrubyc.h>
+#include "task.c"
+
+extern const uint8_t code[];
+
+#define MEMSIZE (1024*30)
+static uint8_t mempool[MEMSIZE];
+
+void setup() {
+  delay(1000);
+
+  mrbc_init(mempool, MEMSIZE);
+  mrbc_define_wio3g_methods();
+
+  if (NULL == mrbc_create_task(code, 0)) {
+    SerialUSB.println("!!! mrbc_create_task error");
+    return;
+  }
+ 
+  SerialUSB.println("--- running mruby/c ---");
+}
+
+void loop() {
+  mrbc_run();
+}
+```
+
+コンパイル・基板にアップロードして実行するとLEDが三色順番に発光します。
+
 ## License
 mruby/c for Wio3G Soracom Edition はBSD License(aka 3-clause license)のもとで配布いたします。
