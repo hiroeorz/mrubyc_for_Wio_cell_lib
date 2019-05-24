@@ -3,17 +3,18 @@ puts "TCP Socket send recv from mruby/c"
 wio = Wio.new
 wio.power_supply_cellular(true)
 wio.turn_on_or_reset
+sleep 3
 
-sleep 5
 wio.activate
 
-sock = wio.tcp_socket_open("smtp.xxx.jp", 25) # change your own smtp host
+signal = wio.get_received_signal_strength
+puts "signal: #{signal} dBm"
 
-result = wio.socket_send(sock, "HELO mruby\r\n")
+sock = wio.tcp_socket_open("www.yahoo.co.jp", 80)
+result = wio.socket_send(sock, "GET /\r\n")
 puts "send #{result}"
 
-sleep 1
-recv = wio.socket_receive(sock, 1024)
+recv = wio.socket_read(wio, sock, 14, 1024*10)
 puts "recv #{recv}"
 
 wio.socket_close(sock)

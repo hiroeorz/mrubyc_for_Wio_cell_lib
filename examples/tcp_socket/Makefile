@@ -1,13 +1,18 @@
 .PHONY: build
 
 MRBC=mrbc
+SRC = ../../mrblib/*.rb task1.rb
+OUTPUT = ./mrblib.rb
 
 build:
-	$(MRBC) -E -Bcode task1.rb && cat task1.c | sed -e 's/extern const uint8_t code\[\];//g'> task.c
-	rm -f task1.c
+	cat $(SRC) > mrblib.rb
+	$(MRBC) -E -Bcode mrblib.rb && sed -i .tmp -e 's/extern const uint8_t code\[\];//g' mrblib.c
+	rm -f mrblib.rb mrblib.c.tmp
 
 clean:
-	rm -f task.c task1.c
+	rm -f mrblib.c mrblib.rb
 
-show:
-	cat task.c
+
+watch: # pip install watchdog
+	watchmedo shell-command --patterns="task1.rb" --recursive --wait \
+	     --command="make"

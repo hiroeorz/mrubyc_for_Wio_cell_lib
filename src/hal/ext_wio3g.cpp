@@ -13,7 +13,7 @@
 
 static Wio3G* wio = NULL;
 
-static void class_wio_init(mrb_vm *vm, mrb_value *v, int argc)
+static void class_wio_initialize(mrb_vm *vm, mrb_value *v, int argc)
 {
   wio->Init();
   SET_TRUE_RETURN();
@@ -387,7 +387,7 @@ void define_wio3g_class()
   mrb_class *class_wio;
   class_wio = mrbc_define_class(0, "Wio", mrbc_class_object);
 
-  mrbc_define_method(0, class_wio, "init", class_wio_init);
+  mrbc_define_method(0, class_wio, "initialize", class_wio_initialize);
   mrbc_define_method(0, class_wio, "power_supply_cellular", class_wio_power_supply_cellular);
   mrbc_define_method(0, class_wio, "power_supply_led", class_wio_power_supply_led);
   mrbc_define_method(0, class_wio, "power_supply_grove", class_wio_power_supply_grove);

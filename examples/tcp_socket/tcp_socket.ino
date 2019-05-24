@@ -1,6 +1,6 @@
 #include <Wio3GforArduino.h>
 #include <libmrubyc.h>
-#include "task.c"
+#include "mrblib.c"
 
 extern const uint8_t code[];
 

@@ -9,5 +9,6 @@ build:
 clean:
 	rm -f task.c task1.c
 
-show:
-	cat task.c
+watch: # pip install watchdog
+	watchmedo shell-command --patterns="*.rb" --recursive --wait \
+	     --command="make"
