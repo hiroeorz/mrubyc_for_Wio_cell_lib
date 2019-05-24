@@ -1,7 +1,7 @@
 # mruby/c for Wio3G Soracom Edition
 
 ## About
-mruby/c for Wio3G Soracom Edition はSeeed社が開発し、ソラコム社が発売する[Wio3G SORACOM EDITION](https://soracom.jp/products/module/wio_3g_soracom_edition/)上で mruby/c を動作させるためのライブラリです。
+mruby/c for Wio3G Soracom Edition はSeeed社が開発し、ソラコム社が発売する[Wio3G SORACOM EDITION](https://soracom.jp/products/module/wio_3g_soracom_edition/)上で [mruby/c](https://github.com/mrubyc/mrubyc) を動作させるためのライブラリです。
 
 本ライブラリを実装するにあたり、kishimaさんの以下の電子書籍やレポジトリ等を参考にさせていただいています。
 * [mruby/cの小さな世界](https://silentworlds.info/2018/09/17/post-620/)
