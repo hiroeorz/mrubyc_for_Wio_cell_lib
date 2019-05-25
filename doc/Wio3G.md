@@ -182,7 +182,7 @@ wio.get_received_signal_strength
 
 ```ruby
 time = wio.get_time
-puts "#{time.year} / #{time.month} / #{time.day}"
+puts "#{time['year']} / #{time['month']} / #{time['day']} #{time['hour']}:#{time['min']}:#{time['sec']}"
 ```
 
 #### 戻り値
