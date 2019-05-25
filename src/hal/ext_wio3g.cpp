@@ -275,15 +275,19 @@ static void class_wio_activate(mrb_vm *vm, mrb_value *v, int argc)
 {
   double wait_time = 120000;
 
-  if (argc > 1) {
+  if (argc != 3) {
     DEBUG_PRINT("!!! invalid argc");
     SET_FALSE_RETURN();
     return;
   }
 
+  uint8_t *apn = GET_STRING_ARG(1);
+  uint8_t *username = GET_STRING_ARG(2);
+  uint8_t *password = GET_STRING_ARG(3);
+
   if (argc == 1) { wait_time = GET_INT_ARG(1); }
 
-  bool success = wio->Activate("soracom.io", "sora", "sora", wait_time);
+  bool success = wio->Activate((const char *)apn, (const char *)username, (const char *)password, wait_time);
   if (success) {
     SET_TRUE_RETURN();
   } else {

@@ -5,7 +5,7 @@ wio.power_supply_cellular(true)
 wio.turn_on_or_reset
 sleep 3
 
-wio.activate
+wio.activate("soracom.io", "sora", "sora")
 
 signal = wio.get_received_signal_strength
 puts "signal: #{signal} dBm"
