@@ -4,15 +4,15 @@
   mruby/c hardware abstract layer for Wio3G
  */
 
-#include <Wio3GforArduino.h>
 #include "hal.h"
+#include <WioCellLibforArduino.h>
 
-static Wio3G *Wio=NULL;
+static WioCellular *Wio=NULL;
 
 extern "C" void hal_init_modem(void)
 {
   if (Wio != NULL) return;
-  Wio = new Wio3G();
+  Wio = new WioCellular();
   Wio->Init();
 }
 

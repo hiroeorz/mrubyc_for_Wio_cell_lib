@@ -1,6 +1,6 @@
 puts "TCP Socket send recv from mruby/c"
 
-wio = Wio3G.new
+wio = Wio.new
 wio.power_supply_cellular(true)
 wio.turn_on_or_reset
 sleep 3

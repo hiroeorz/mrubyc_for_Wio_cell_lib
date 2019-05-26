@@ -1,9 +1,9 @@
 puts "HTTP GET and POST from mruby/c"
 
-wio = Wio3G.new
+wio = Wio.new
 wio.power_supply_cellular(true)
 wio.turn_on_or_reset
-sleep 3
+sleep 1
 
 wio.activate("soracom.io", "sora", "sora")
 

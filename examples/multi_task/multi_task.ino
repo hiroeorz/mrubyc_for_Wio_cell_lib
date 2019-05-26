@@ -1,4 +1,3 @@
-#include <Wio3GforArduino.h>
 #include <libmrubyc.h>
 #include "task.c"
 
@@ -12,7 +11,7 @@ void setup() {
   delay(1000);
 
   mrbc_init(mempool, MEMSIZE);
-  mrbc_define_wio3g_methods();
+  mrbc_define_wio_methods();
 
   if (NULL == mrbc_create_task(code1, 0)) {
     SerialUSB.println("!!! mrbc_create_task error");

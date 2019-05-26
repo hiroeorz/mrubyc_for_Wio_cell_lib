@@ -1,4 +1,4 @@
-class Wio3G
+class Wio
 
   def socket_read(sock, bytes, buffer_size = 1024, timeout = 120)
     recv = ""

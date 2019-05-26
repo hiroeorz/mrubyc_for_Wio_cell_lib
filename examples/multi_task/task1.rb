@@ -1,4 +1,4 @@
-wio = Wio3G.new
+wio = Wio.new
 arduino = Arduino.new
 
 puts "hello mruby! I am task1 !"

@@ -1,5 +1,5 @@
 /*
-  ext_wio3g.cpp
+  ext.cpp
 
   Defining extension methods
 
@@ -20,8 +20,8 @@ bool mrbc_trans_cppbool_value(mrbc_vtype tt)
 }
 
 
-void mrbc_define_wio3g_methods(void)
+void mrbc_define_wio_methods(void)
 {
-  define_wio3g_class();
+  define_wio_class();
   define_arduino_class();
 }
