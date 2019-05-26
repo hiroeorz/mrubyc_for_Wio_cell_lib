@@ -494,3 +494,7 @@ USSDでメッセージ交換します。
 ```ruby
 wio.system_reset
 ```
+
+#### 説明
+
+CPUをリセットします。
