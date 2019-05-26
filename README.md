@@ -1,7 +1,12 @@
 # mruby/c for Wio(3G, LTE, LTE M1/NB1) SORACOM Edition
 
 ## About
-mruby/c for Wio はSeeed社が開発し、ソラコム社が発売する[Wio3G SORACOM EDITION](https://soracom.jp/products/module/wio_3g_soracom_edition/)、[Wio LTE](https://soracom.jp/products/module/wio_lte/)、[Wio LTE M1/NB1](https://soracom.jp/products/module/wio_lte_m1_nb1/)上で [mruby/c](https://github.com/mrubyc/mrubyc) を動作させるためのライブラリです。
+mruby/c for Wio はSeeed社が開発し、ソラコム社が発売する以下の基板上で [mruby/c](https://github.com/mrubyc/mrubyc) を動作させるためのライブラリです。
+
+* [Wio3G SORACOM EDITION](https://soracom.jp/products/module/wio_3g_soracom_edition/)
+* [Wio LTE JP Version](https://soracom.jp/products/module/wio_lte/)
+* [Wio LTE M1/NB1](https://soracom.jp/products/module/wio_lte_m1_nb1/)
+
 
 本ライブラリを実装するにあたり、kishimaさんの以下の電子書籍やレポジトリ等を参考にさせていただいています。
 * [mruby/cの小さな世界](https://silentworlds.info/2018/09/17/post-620/)
@@ -22,22 +27,22 @@ mruby/c for Wio はSeeed社が開発し、ソラコム社が発売する[Wio3G S
 本リポジトリをcloneします.
 
 ```
-$ git clone https://github.com/hiroeorz/mrubyc_Wio3G_Soracom_Edition.git
+$ git clone https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib.git
 ```
 
 リポジトリごとArduinoのライブラリディレクトリに保存します。
 
 ```
-$ cp -r mrubyc_Wio3G_Soracom_Edition  ~/Documents/Arduino/libraries/
+$ cp -r mrubyc_for_Wio_cell_lib  ~/Documents/Arduino/libraries/
 ```
 
 あとは、スケッチの中で本ライブラリをインクルードします
 
-* `スケッチ` -> `ライブラリのインクルード` -> `mruby/c for Wio3G Soracom Edition` を選択。
+* `スケッチ` -> `ライブラリのインクルード` -> `mruby/c for Wio cell lib` を選択。
 
 ## Document
 
-* [Wio3Gクラス](https://github.com/hiroeorz/mrubyc_Wio3G_Soracom_Edition/blob/master/doc/Wio3G.md)
+* [Wioクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/Wio.md)
 
 ## Examples
 
@@ -49,7 +54,7 @@ $ make
 ```
 
 とすると、rubyのソースからCのソースを吐き出します。
-あとはArduino上でビルドし、Wio3Gにアップロードして実行してください。
+あとはArduino上でビルドし、 `Wio3G` , `Wio LTE` , `Wio LTE M1/NB1` にアップロードして実行してください。
 
 例として、Wio3Gに実装されているLEDを赤・緑・青で繰り返し光らせるためのRubyソースコードは以下のようになります。
 
@@ -70,7 +75,6 @@ end
 この `task.c` を読み込んで実行するArduinoスケッチは以下のようになります。
 
 ```c++:led.ino
-#include <Wio3GforArduino.h>
 #include <libmrubyc.h>
 #include "task.c"
 
@@ -83,7 +87,7 @@ void setup() {
   delay(1000);
 
   mrbc_init(mempool, MEMSIZE);
-  mrbc_define_wio3g_methods();
+  mrbc_define_wio_methods();
 
   if (NULL == mrbc_create_task(code, 0)) {
     SerialUSB.println("!!! mrbc_create_task error");
@@ -101,4 +105,4 @@ void loop() {
 コンパイル・基板にアップロードして実行するとLEDが三色順番に発光します。
 
 ## License
-mruby/c for Wio3G Soracom Edition はBSD License(aka 3-clause license)のもとで配布いたします。
+mruby/c for Wio cell lib はBSD License(aka 3-clause license)のもとで配布いたします。

@@ -1,11 +1,11 @@
-# Wio3G
+# Wio
 
-本ドキュメントは[SeeedJP/Wiki/Wio_3G_for_Arduino/reference-ja.md](https://github.com/SeeedJP/Wiki/blob/master/Wio_3G_for_Arduino/reference-ja.md)のmruby/c版になります。
+本ドキュメントは[Wio cell lib for Arduino リファレンスマニュアル](https://seeedjp.github.io/Wiki/Wio_cell_lib_for_Arduino/reference-ja.html)のmruby/c版になります。
 
 ## 初期化
 
 ```ruby
-wio = Wio3G.new
+wio = Wio.new
 ```
 
 ## インスタンスメソッド
@@ -24,9 +24,9 @@ wio.power_supply_cellular(on)
 
 #### 説明
 
-Wio 3G上の3Gモジュールの電源供給をオン/オフします。
-3Gモジュールは電源供給オンの後に、起動操作（TurnOnOrReset）しないと利用できません。
-本関数を実行した後の、3Gモジュールの操作は0.5秒以上待ってください。（3Gモジュールの動作が安定するまで待つ。）
+通信モジュールの電源供給をオン/オフします。
+通信モジュールは電源供給オンの後に、起動操作（TurnOnOrReset）しないと利用できません。
+本関数を実行した後の、通信モジュールの操作は0.5秒以上待ってください。（通信モジュールの動作が安定するまで待つ。）
 
 ### power_supply_led
 
@@ -77,7 +77,7 @@ wio.led_set_rgb(red, green, blue)
 
 #### 説明
 
-Wio 3G上のフルカラーLEDを点灯します。
+フルカラーLEDを点灯します。
 消灯したいときは、red/green/blue全てに0を指定します。
 
 ### turn_on_or_reset
@@ -94,9 +94,9 @@ wio.turn_on_or_reset
 
 #### 説明
 
-Wio 3G上の3Gモジュールを起動操作します。
-3Gモジュールが電源オンしていないときは電源オン、電源オンしているときはリセットします。
-本関数を実行する前に、3Gモジュールへ電源供給（power_supply_cellular）してください。
+通信モジュールを起動操作します。
+通信モジュールが電源オンしていないときは電源オン、電源オンしているときはリセットします。
+本関数を実行する前に、通信モジュールへ電源供給（power_supply_cellular）してください。
 
 ### turn_off
 
@@ -112,7 +112,7 @@ wio.turn_off
 
 #### 説明
 
-Wio 3G上の3Gモジュールを停止操作します。
+通信モジュールを停止操作します。
 
 ### get_imei
 
@@ -128,7 +128,7 @@ wio.get_imei
 
 #### 説明
 
-Wio 3GのIMEIを取得します。
+IMEIを取得します。
 
 ### get_imsi
 
@@ -144,7 +144,7 @@ wio.get_imsi
 
 #### 説明
 
-Wio 3Gに取り付けられたSIMのIMSIを取得します。
+SIMのIMSIを取得します。
 
 ### get_phone_number
 
@@ -160,7 +160,7 @@ wio.get_phone_number
 
 #### 説明
 
-Wio 3Gに取り付けられたSIMの電話番号を取得します。
+取り付けられたSIMの電話番号を取得します。
 
 ### get_received_signal_strength
 
@@ -176,7 +176,7 @@ wio.get_received_signal_strength
 
 #### 説明
 
-3Gモジュールが受信している信号強度[dBm]を取得します。
+通信モジュールが受信している信号強度[dBm]を取得します。
 
 ### get_time
 
@@ -193,7 +193,7 @@ puts "#{time['year']} / #{time['month']} / #{time['day']} #{time['hour']}:#{time
 
 #### 説明
 
-3Gモジュールが保持している日時を取得します。
+通信モジュールが保持している日時を取得します。
 ハッシュオブジェクトから、パラメータ名で値を取り出せます。
 
 
