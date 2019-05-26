@@ -15,11 +15,10 @@ void setup() {
   if (NULL == mrbc_create_task(code, 0)) {
     SerialUSB.println("!!! mrbc_create_task error");
     return;
-  }
- 
-  SerialUSB.println("--- running mruby/c ---");
+  } 
 }
 
 void loop() {
+  SerialUSB.println("--- running mruby/c ---");
   mrbc_run();
 }

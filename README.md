@@ -19,6 +19,9 @@ mruby/c for Wio はSeeed社が開発した以下の基板上で [mruby/c](https:
 
 作者は手元にWio3Gしか持っていないため、Wio3Gでの動作確認はしていますが、Wio LTEおよびWio LTE N1/NB1での動作確認は行なっておりません。
 
+mruby/cでコードを書いたLED制御サンプル（クリックで再生）。
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/eMzv5k-YnNI/0.jpg)](http://www.youtube.com/watch?v=eMzv5k-YnNI)
+
 ## Arduino IDE側の準備
 
 1. Arduino IDEを起動し、 `スケッチ` -> `ライブラリをインクルード` -> `ライブラリを管理` をクリックし、ライブラリマネージャを起動します。
