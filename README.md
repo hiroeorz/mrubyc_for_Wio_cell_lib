@@ -1,7 +1,7 @@
 # mruby/c for Wio(3G, LTE, LTE M1/NB1)
 
 ## About
-mruby/c for Wio はSeeed社が開発し、ソラコム社が発売する以下の基板上で [mruby/c](https://github.com/mrubyc/mrubyc) を動作させるためのライブラリです。
+mruby/c for Wio はSeeed社が開発した以下の基板上で [mruby/c](https://github.com/mrubyc/mrubyc) を動作させるためのライブラリです。
 
 * [Wio3G SORACOM EDITION](https://soracom.jp/products/module/wio_3g_soracom_edition/)
 * [Wio LTE JP Version](https://soracom.jp/products/module/wio_lte/)
@@ -12,6 +12,8 @@ mruby/c for Wio はSeeed社が開発し、ソラコム社が発売する以下�
 * [mruby/cの小さな世界](https://silentworlds.info/2018/09/17/post-620/)
 * [kishima/libmrubycForWioLTEArduino](https://github.com/kishima/libmrubycForWioLTEArduino)
 * [mruby/cで始めるオリジナルIoTデバイス作り](https://magazine.rubyist.net/articles/0059/0059-original_mrubyc_iot_device.html)
+
+本ライブラリは[Wio_cell_lib_for_Arduino](https://github.com/SeeedJP/Wio_cell_lib_for_Arduino)に依存します。
 
 本ライブラリはmruby/c 1.2のソースコードを含んでいます。
 
