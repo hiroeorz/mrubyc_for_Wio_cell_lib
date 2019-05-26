@@ -1,7 +1,7 @@
-# mruby/c for Wio3G Soracom Edition
+# mruby/c for Wio(3G, LTE, LTE M1/NB1) SORACOM Edition
 
 ## About
-mruby/c for Wio3G Soracom Edition はSeeed社が開発し、ソラコム社が発売する[Wio3G SORACOM EDITION](https://soracom.jp/products/module/wio_3g_soracom_edition/)上で [mruby/c](https://github.com/mrubyc/mrubyc) を動作させるためのライブラリです。
+mruby/c for Wio はSeeed社が開発し、ソラコム社が発売する[Wio3G SORACOM EDITION](https://soracom.jp/products/module/wio_3g_soracom_edition/)、[Wio LTE](https://soracom.jp/products/module/wio_lte/)、[Wio LTE M1/NB1](https://soracom.jp/products/module/wio_lte_m1_nb1/)上で [mruby/c](https://github.com/mrubyc/mrubyc) を動作させるためのライブラリです。
 
 本ライブラリを実装するにあたり、kishimaさんの以下の電子書籍やレポジトリ等を参考にさせていただいています。
 * [mruby/cの小さな世界](https://silentworlds.info/2018/09/17/post-620/)
@@ -9,6 +9,13 @@ mruby/c for Wio3G Soracom Edition はSeeed社が開発し、ソラコム社が�
 * [mruby/cで始めるオリジナルIoTデバイス作り](https://magazine.rubyist.net/articles/0059/0059-original_mrubyc_iot_device.html)
 
 本ライブラリはmruby/c 1.2のソースコードを含んでいます。
+
+作者は手元にWio3Gしか持っていないため、Wio3Gでの動作確認はしていますが、Wio LTEおよびWio LTE N1/NB1での動作確認は行なっておりません。
+
+## Arduino IDE側の準備
+
+1. Arduino IDEを起動し、 `スケッチ` -> `ライブラリをインクルード` -> `ライブラリを管理` をクリックし、ライブラリマネージャを起動します。
+2. `Wio cell lib` で検索し、 `Wio cell lib for Arduino` の最新版をインストールします。
 
 ## Install
 
