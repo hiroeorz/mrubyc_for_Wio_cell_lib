@@ -488,3 +488,9 @@ wio.send_ussd(in)
 #### 説明
 
 USSDでメッセージ交換します。
+
+### system_reset
+
+```ruby
+wio.system_reset
+```
