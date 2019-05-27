@@ -244,13 +244,16 @@ PSネットワークに登録完了するまで待ちます。
 ### activate
 
 ```ruby
-wio.activate
+wio.activate("soracom.io", "sora", "sora")
 ```
 
 #### 引数
 
 |引数|説明|
 |:--|:--|
+|apn|接続先APN|
+|username|ユーザー名|
+|password|パスワード|
 |wait_time|タイムアウト時間[ミリ秒]。|
 
 #### 戻り値
