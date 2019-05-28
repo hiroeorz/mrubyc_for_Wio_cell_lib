@@ -18,6 +18,12 @@ static WioCellular* wio = NULL;
 static void class_wio_initialize(mrb_vm *vm, mrb_value *v, int argc)
 {
   wio->Init();
+
+  if (argc == 1) {
+    int serial_usb_speed = GET_INT_ARG(1);
+    SerialUSB.begin(serial_usb_speed);
+  }
+
   SET_TRUE_RETURN();
 }
 
