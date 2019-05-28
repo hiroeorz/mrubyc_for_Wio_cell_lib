@@ -86,6 +86,9 @@ void hal_init_modem(void);
 void* hal_get_modem_obj(void);
 void hal_init_serial_usb(unsigned int speed);
 
+void hal_init_serial_uart(void);
+void* hal_get_serial_uart_obj(void);
+
 #ifdef __cplusplus
 }
 #endif

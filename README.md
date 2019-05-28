@@ -48,6 +48,7 @@ $ cp -r mrubyc_for_Wio_cell_lib  ~/Documents/Arduino/libraries/
 ## Document
 
 * [Wioクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/Wio.md)
+* [SerialUARTクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/SerialUART.md)
 
 ## Examples
 

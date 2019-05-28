@@ -16,5 +16,6 @@ bool mrbc_trans_cppbool_value(mrbc_vtype tt);
 
 void define_wio_class(void);
 void define_arduino_class(void);
+void define_serial_uart_class(void);
 
 #endif
