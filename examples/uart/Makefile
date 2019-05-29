@@ -1,7 +1,7 @@
 .PHONY: all
 
 MRBC=mrbc
-SRC=../../mrblib/*.rb task1.rb
+SRC= task1.rb
 OUTPUT=./mrblib.rb
 ARDUINO=/Applications/Arduino.app/Contents/MacOS/Arduino
 

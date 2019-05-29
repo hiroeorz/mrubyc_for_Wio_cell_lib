@@ -25,4 +25,12 @@ void mrbc_define_wio_methods(void)
   define_wio_class();
   define_arduino_class();
   define_serial_uart_class();
+
+  // mrblib以下のrubyソースから生成したバイトコードを読み込む.
+  // src/hal/wio_mrb_lib.c
+  extern const uint8_t mruby_wio_code[];
+
+  if (NULL == mrbc_create_task(mruby_wio_code, 0)) {
+    hal_write_string((char *)"!!! wio bytecode load error\n");
+  }
 }
