@@ -13,7 +13,8 @@ mruby/cでコードを書いたLED制御サンプル（クリックで再生）�
 ## Arduino IDE側の準備
 
 1. Arduino IDEを起動し、 `スケッチ` -> `ライブラリをインクルード` -> `ライブラリを管理` をクリックし、ライブラリマネージャを起動します。
-2. `Wio cell lib` で検索し、 `Wio cell lib for Arduino` の最新版をインストールします。
+2. `Wio 3G` `Wio LTE M1/NB1` の場合は、 `Wio cell lib` で検索し、 `Wio cell lib for Arduino` の最新版をインストールします。
+2. `Wio LTE` の場合は、 `Wio LTE` で検索し、 `Wio LTE for Arduino` の最新版をインストールします。
 
 ## Install
 
