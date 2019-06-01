@@ -7,11 +7,13 @@
 
 */
 
-#include <WioCellLibforArduino.h>
-
 #include <limits.h>
 #include "libmrubyc.h"
 #include "ext.h"
+
+#if defined ARDUINO_WIO_LTE
+HardwareSerial& SerialUART = Serial;
+#endif
 
 // parity (0:なし, 1:奇数, 2:偶数)
 int get_serial_uart_config(int parity)

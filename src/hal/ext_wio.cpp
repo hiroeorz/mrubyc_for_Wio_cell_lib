@@ -7,8 +7,6 @@
 
 */
 
-#include <WioCellLibforArduino.h>
-
 #include <limits.h>
 #include "libmrubyc.h"
 #include "ext.h"
@@ -460,6 +458,7 @@ static void class_wio_http_post(mrb_vm *vm, mrb_value *v, int argc)
   SET_INT_RETURN(response_code);
 }
 
+#if !defined ARDUINO_WIO_LTE
 static void class_wio_send_ussd(mrb_vm *vm, mrb_value *v, int argc)
 {
   if (argc != 1 && argc != 2) {
@@ -486,6 +485,7 @@ static void class_wio_send_ussd(mrb_vm *vm, mrb_value *v, int argc)
   mrbc_value recv = mrbc_string_new_cstr(vm, out);
   SET_RETURN(recv);
 }
+#endif
 
 static void class_wio_system_reset(mrb_vm *vm, mrb_value *v, int argc)
 {
@@ -534,6 +534,12 @@ void define_wio_class()
   mrbc_define_method(0, class_wio, "socket_close", class_wio_socket_close);
   mrbc_define_method(0, class_wio, "http_get", class_wio_http_get);
   mrbc_define_method(0, class_wio, "http_post", class_wio_http_post);
-  mrbc_define_method(0, class_wio, "send_ussd", class_wio_send_ussd);
   mrbc_define_method(0, class_wio, "system_reset", class_wio_system_reset);
+
+
+#if defined ARDUINO_WIO_LTE
+
+#else
+  mrbc_define_method(0, class_wio, "send_ussd", class_wio_send_ussd);
+#endif
 }

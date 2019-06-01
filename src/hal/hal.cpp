@@ -5,7 +5,7 @@
  */
 
 #include "hal.h"
-#include <WioCellLibforArduino.h>
+#include "libmrubyc.h"
 
 static WioCellular *Wio=NULL;
 
