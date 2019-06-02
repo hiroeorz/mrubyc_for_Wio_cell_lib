@@ -458,7 +458,111 @@ static void class_wio_http_post(mrb_vm *vm, mrb_value *v, int argc)
   SET_INT_RETURN(response_code);
 }
 
-#if !defined ARDUINO_WIO_LTE
+static void class_wio_system_reset(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  wio->SystemReset();
+  SET_NIL_RETURN();
+}
+
+#if defined ARDUINO_WIO_LTE
+/****************************** Wio LTE ONLY *************************************/
+
+static void class_wio_sleep(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_FALSE_RETURN();
+    return;
+  }
+
+  wio->Sleep();
+  SET_TRUE_RETURN();
+}
+
+static void class_wio_wakeup(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_FALSE_RETURN();
+    return;
+  }
+
+  wio->Wakeup();
+  SET_TRUE_RETURN();
+}
+
+static void class_wio_get_iccid(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+  
+  int iccid_size = 32;
+  char iccid[32];
+
+  int len = wio->GetICCID(iccid, iccid_size);
+  if (len < 0) {
+    DEBUG_PRINT("cannot get ICCID");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  iccid[len] = '\0';
+  mrbc_value str = mrbc_string_new_cstr(vm, (const char *)iccid);
+  SET_RETURN(str);
+}
+
+static void class_wio_sync_time(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  uint8_t *host = GET_STRING_ARG(1);
+  bool success = wio->SyncTime((const char *)host);
+
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
+static void class_wio_get_location(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  double lon;
+  double lat;
+  bool success = wio->GetLocation(&lon, &lat);
+
+  if (!success) {
+    SET_NIL_RETURN();
+  }
+
+  mrbc_value location = mrbc_hash_new(vm, 2);
+  set_time_to_obj(vm, &location, "longitude" , lon);  
+  set_time_to_obj(vm, &location, "latitude" , lat);  
+  SET_RETURN(location);
+}
+
+#else
+/*************************** Wio 3G Wio LTE NB1/M1 ONLY *******************************/
+
 static void class_wio_send_ussd(mrb_vm *vm, mrb_value *v, int argc)
 {
   if (argc != 1 && argc != 2) {
@@ -485,19 +589,9 @@ static void class_wio_send_ussd(mrb_vm *vm, mrb_value *v, int argc)
   mrbc_value recv = mrbc_string_new_cstr(vm, out);
   SET_RETURN(recv);
 }
+
+/************************************************************************************/
 #endif
-
-static void class_wio_system_reset(mrb_vm *vm, mrb_value *v, int argc)
-{
-  if (argc != 0) {
-    DEBUG_PRINT("!!! invalid argc");
-    SET_NIL_RETURN();
-    return;
-  }
-
-  wio->SystemReset();
-  SET_NIL_RETURN();
-}
 
 void define_wio_class()
 {
@@ -510,21 +604,16 @@ void define_wio_class()
   mrbc_define_method(0, class_wio, "power_supply_cellular", class_wio_power_supply_cellular);
   mrbc_define_method(0, class_wio, "power_supply_led", class_wio_power_supply_led);
   mrbc_define_method(0, class_wio, "power_supply_grove", class_wio_power_supply_grove);
-
   mrbc_define_method(0, class_wio, "led_set_rgb", class_wio_led_set_rgb);
-
   mrbc_define_method(0, class_wio, "turn_on_or_reset", class_wio_turn_on_or_reset);
   mrbc_define_method(0, class_wio, "turn_off", class_wio_turn_off);
-
   mrbc_define_method(0, class_wio, "get_imei", class_wio_get_imei);
   mrbc_define_method(0, class_wio, "get_imsi", class_wio_get_imsi);
   mrbc_define_method(0, class_wio, "get_phone_number", class_wio_get_phone_number);
-
   mrbc_define_method(0, class_wio, "wait_for_cs_registration", class_wio_wait_for_cs_registration);
   mrbc_define_method(0, class_wio, "wait_for_ps_registration", class_wio_wait_for_ps_registration);
   mrbc_define_method(0, class_wio, "get_received_signal_strength", class_wio_get_received_signal_strength);
   mrbc_define_method(0, class_wio, "get_time", class_wio_get_time);
-
   mrbc_define_method(0, class_wio, "activate", class_wio_activate);
   mrbc_define_method(0, class_wio, "deactivate", class_wio_deactivate);
   mrbc_define_method(0, class_wio, "tcp_socket_open", class_wio_tcp_socket_open);
@@ -536,9 +625,10 @@ void define_wio_class()
   mrbc_define_method(0, class_wio, "http_post", class_wio_http_post);
   mrbc_define_method(0, class_wio, "system_reset", class_wio_system_reset);
 
-
 #if defined ARDUINO_WIO_LTE
-
+  mrbc_define_method(0, class_wio, "sleep", class_wio_sleep);
+  mrbc_define_method(0, class_wio, "wakeup", class_wio_sleep);
+  mrbc_define_method(0, class_wio, "get_iccid", class_wio_get_iccid);
 #else
   mrbc_define_method(0, class_wio, "send_ussd", class_wio_send_ussd);
 #endif

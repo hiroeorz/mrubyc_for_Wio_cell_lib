@@ -13,6 +13,7 @@
 
 #if defined ARDUINO_WIO_LTE
 HardwareSerial& SerialUART = Serial;
+//HardwareSerial SerialUART(GROVE_UART_CORE, GROVE_UART_TX_PIN, GROVE_UART_RX_PIN);
 #endif
 
 // parity (0:なし, 1:奇数, 2:偶数)
