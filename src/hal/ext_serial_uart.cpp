@@ -12,8 +12,19 @@
 #include "ext.h"
 
 #if defined ARDUINO_WIO_LTE
+
+#define WIO_UART_D23	    PINNAME_TO_PIN('B', 7)
+#define WIO_UART_D22        PINNAME_TO_PIN('B', 6)
+#define GROVE_UART_CORE     (0)                                 // USART1
+#define GROVE_UART_TX_PIN   WIO_UART_D22			// out
+#define GROVE_UART_RX_PIN   WIO_UART_D23			// in
+
+#ifdef ARDUINO_ARCH_STM32
 HardwareSerial& SerialUART = Serial;
-//HardwareSerial SerialUART(GROVE_UART_CORE, GROVE_UART_TX_PIN, GROVE_UART_RX_PIN);
+#else
+HardwareSerial SerialUART(GROVE_UART_CORE, GROVE_UART_TX_PIN, GROVE_UART_RX_PIN);
+#endif
+
 #endif
 
 // parity (0:なし, 1:奇数, 2:偶数)
