@@ -49,7 +49,6 @@ static void class_serial_uart_initialize(mrb_vm *vm, mrb_value *v, int argc)
 
   if (argc == 2) {
     parity = GET_INT_ARG(2); // 0:なし 1:奇数 2:偶数
-    SerialUSB.println(parity);
   }
 
   int config = get_serial_uart_config(parity);
