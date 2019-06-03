@@ -10,8 +10,11 @@
 #ifndef __LIBMRUBYC_H_
 #define __LIBMRUBYC_H_
 
+#if defined ARDUINO_WIO_LTE
 #include <WioLTEforArduino.h>
-// #include <WioCellLibforArduino.h>
+#else
+#include <WioCellLibforArduino.h>
+#endif
 
 #include "mrubyc.h"
 #include "libmrubyc_config.h"

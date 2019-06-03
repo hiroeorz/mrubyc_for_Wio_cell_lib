@@ -19,7 +19,7 @@
 #define GROVE_UART_TX_PIN   WIO_UART_D22			// out
 #define GROVE_UART_RX_PIN   WIO_UART_D23			// in
 
-#ifdef ARDUINO_ARCH_STM32
+#if defined ARDUINO_ARCH_STM32
 HardwareSerial& SerialUART = Serial;
 #else
 HardwareSerial SerialUART(GROVE_UART_CORE, GROVE_UART_TX_PIN, GROVE_UART_RX_PIN);
@@ -45,10 +45,11 @@ static void class_serial_uart_initialize(mrb_vm *vm, mrb_value *v, int argc)
   }
 
   int speed = GET_INT_ARG(1);
-  bool parity  = 0; //パリティなし
+  int parity  = 0; //パリティなし
 
   if (argc == 2) {
     parity = GET_INT_ARG(2); // 0:なし 1:奇数 2:偶数
+    SerialUSB.println(parity);
   }
 
   int config = get_serial_uart_config(parity);
