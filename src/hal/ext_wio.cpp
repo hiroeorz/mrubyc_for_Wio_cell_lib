@@ -629,7 +629,7 @@ void define_wio_class()
 #if defined ARDUINO_WIO_LTE
   mrbc_define_method(0, class_wio, "power_supply_lte", class_wio_power_supply_cellular);
   mrbc_define_method(0, class_wio, "sleep", class_wio_sleep);
-  mrbc_define_method(0, class_wio, "wakeup", class_wio_sleep);
+  mrbc_define_method(0, class_wio, "wakeup", class_wio_wakeup);
   mrbc_define_method(0, class_wio, "get_iccid", class_wio_get_iccid);
   mrbc_define_method(0, class_wio, "get_location", class_wio_get_location);
 #else
