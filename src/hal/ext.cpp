@@ -25,6 +25,7 @@ void mrbc_define_wio_methods(void)
   define_wio_class();
   define_arduino_class();
   define_serial_uart_class();
+  define_mqtt_client_class();
 
   // mrblib以下のrubyソースから生成したバイトコードを読み込む.
   // src/hal/wio_mrb_lib.c

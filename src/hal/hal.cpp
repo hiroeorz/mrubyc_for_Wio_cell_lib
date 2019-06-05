@@ -8,6 +8,8 @@
 #include "libmrubyc.h"
 
 static WioCellular *Wio=NULL;
+static WioCellularClient *WioClient = NULL;
+static PubSubClient *MqttClient = NULL;
 
 extern "C" void hal_init_modem(void)
 {
@@ -35,4 +37,3 @@ extern "C" void hal_delay(unsigned long t)
 {
   delay(t);
 }
-

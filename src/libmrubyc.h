@@ -12,10 +12,13 @@
 
 #if defined ARDUINO_WIO_LTE
 #include <WioLTEforArduino.h>
+#include <WioLTEClient.h>
 #else
 #include <WioCellLibforArduino.h>
+#include <WioCellularClient.h>
 #endif
 
+#include <PubSubClient.h>		// https://github.com/SeeedJP/pubsubclient
 #include "mrubyc.h"
 #include "libmrubyc_config.h"
 
