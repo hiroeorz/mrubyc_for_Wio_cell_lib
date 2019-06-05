@@ -43,6 +43,8 @@ void hal_init(void)
 {
   hal_init_serial_usb(SERIAL_USB_SPEED);
   hal_init_modem();
+  hal_init_wio_client();
+  hal_init_mqtt_client();
 }
 
 
