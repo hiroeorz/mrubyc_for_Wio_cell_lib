@@ -89,11 +89,6 @@ void hal_init_serial_usb(unsigned int speed);
 void hal_init_serial_uart(void);
 void* hal_get_serial_uart_obj(void);
 
-void hal_init_wio_client(void);
-void hal_init_mqtt_client(void);
-void* hal_get_wio_client_obj(void);
-void* hal_get_mqtt_client_obj(void);
-
 #ifdef __cplusplus
 }
 #endif
