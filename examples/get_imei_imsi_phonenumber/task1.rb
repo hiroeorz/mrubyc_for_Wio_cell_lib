@@ -2,6 +2,7 @@ puts "Get IMEI from mruby/c"
 
 wio = Wio.new
 wio.power_supply_cellular(true)
+
 wio.turn_on_or_reset
 sleep 1
 

@@ -3,15 +3,17 @@ puts "SerialUART control from mruby/c"
 
 wio = Wio.new(115200)
 wio.power_supply_grove(true)   # Groveの電源をON
-uart = SerialUART.new(9600)    # シリアルポートのスピードを9600bps,パリティ無しで初期化
+uart = SerialUART.new(9600, 2)    # シリアルポートのスピードを9600bps,パリティ偶数で初期化
 
 def checkcode(str)
   check_code = str[0].ord
   i = 0
 
   str.each_byte do |b|
-    next if i == 0
-    check_code = check_code ^ b
+    if i > 0
+      check_code = check_code ^ b
+    end
+
     i += 1
   end
 
@@ -24,13 +26,13 @@ end
 
 def request_data(val)
   str = "@00R#{hex_str(val)}"
-  return "#{str}#{checkcode(str)}/*\r"
+  return "#{str}#{checkcode(str)}*\r"
 end
 
 while true
   uart.clear!                  # バッファをクリアする
-  str = request_data(34)
-  puts str
+  str = request_data(0)
+  puts "send: #{str}"
   uart.print(str)
 
   #uart.print("@00R000012*\r")        # データを書き込む
