@@ -9,11 +9,6 @@ wio.activate("soracom.io", "sora", "sora")
 mqtt_client = MQTTClient.new()
 success = mqtt_client.connect("test.mosquitto.org")
 
-MQTTClient.open("test.mosquitto.org") do |mqtt_client|
-  puts "ok connected."
-end
-
-=begin
 if success
   puts "ok connected."
   result = mqtt_client.subscribe("test")
@@ -28,7 +23,6 @@ else
 end
 
 mqtt_client.disconnect
-=end
 
 while true
   sleep 30
