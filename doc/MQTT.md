@@ -84,6 +84,12 @@ MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
 end
 ```
 
+#### 引数
+
+|引数|説明|
+|:--|:--|
+|seconds|受信待機時間|
+
 #### 説明
 
 `subscribe` を実行したあと、データを待機します。
