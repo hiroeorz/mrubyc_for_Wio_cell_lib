@@ -42,6 +42,7 @@ $ cp -r mrubyc_for_Wio_cell_lib  ~/Documents/Arduino/libraries/
 
 * [Wioクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/Wio.md)
 * [SerialUARTクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/SerialUART.md)
+* [MQTTClientクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/MQTT.md)
 
 ## Examples
 
