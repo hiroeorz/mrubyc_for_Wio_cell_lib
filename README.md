@@ -16,6 +16,10 @@ mruby/cでコードを書いたLED制御サンプル（クリックで再生）�
 2. `Wio 3G` `Wio LTE M1/NB1` の場合は、 `Wio cell lib` で検索し、 `Wio cell lib for Arduino` の最新版をインストールします。
 2. `Wio LTE` の場合は、 `Wio LTE` で検索し、 `Wio LTE for Arduino` の最新版をインストールします。
 
+## PubSubClientのインストール
+
+1. [SeeedJP/pubsubclient](https://github.com/SeeedJP/pubsubclient)のREADMEに従い、 `Arduino Client for MQTT` をインストールします。
+
 ## Install
 
 本リポジトリをcloneします.
