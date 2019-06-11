@@ -1,3 +1,11 @@
+#
+# MQTTClient, mrubyc class library
+#
+#  Copyright (C) 2019 Shin Hiroe
+#
+#  This file is distributed under BSD 3-Clause License.
+#
+
 class MQTTClient
 
   def self.open(host, port, connect_id, &block)
