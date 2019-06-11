@@ -8,7 +8,7 @@
 #
 
 class String
-  
+
   def to_json
     "\"#{self}\""
   end
