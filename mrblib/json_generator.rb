@@ -26,7 +26,7 @@ end
 class Float
 
   def to_json
-    "#{self}"
+    self.to_s
   end
 
 end
