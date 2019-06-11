@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-#  add to_json method to mrubyc classes. 
+#  JSON Parser to mrubyc classes. 
 #
 #  Copyright (C) 2019 Shin Hiroe
 #
