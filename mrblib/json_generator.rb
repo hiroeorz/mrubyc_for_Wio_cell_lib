@@ -71,7 +71,7 @@ class Hash
 
     self.keys.each do |k|
       v = method_self[k]
-      elements.push("\"#{k}\":#{v.to_json}")
+      elements.push("\"#{k.to_s}\":#{v.to_json}")
     end
 
     "{" + elements.join(",") + "}"

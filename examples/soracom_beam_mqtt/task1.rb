@@ -6,9 +6,7 @@ wio.turn_on_or_reset
 sleep 1
 
 wio.activate("soracom.io", "sora", "sora")
-
-imsi = wio.get_imsi
-send_data = {"di" => [1, 2, 3], "ai" => [20, 30, 40], "alert" => 0, "flag" => false}
+send_data = {:di => [1, 2, 3], :ai => [20, 30, 40], :alert => 0, :flag => false}
 
 MQTTClient.open("beam.soracom.io", 1883, "") do |mqtt|
   puts "ok connected."
