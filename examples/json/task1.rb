@@ -4,6 +4,9 @@ obj = {:di => [1, 2, 3], :ai => [20, 30, 40], :alert => 0, :flag => false}
 json = obj.to_json
 p json
 
+obj = JSON.parse('12')
+p obj
+
 obj = JSON.parse('"abc"')
 p obj
 
@@ -19,9 +22,9 @@ p obj
 obj = JSON.parse('{"membars": ["hiroe", "ito", "takeshita"]}')
 p obj
 
-# todo
-#obj = JSON.parse('{"me": {"name": "hiroe", "age": 43}}')
-#p obj
+obj = JSON.parse('{"me": {"name": "hiroe", "age": 43}}')
+p obj
+
 
 loop do
   sleep 1

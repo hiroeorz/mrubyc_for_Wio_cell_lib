@@ -38,51 +38,92 @@ class JSONParser
     return idx
   end
 
-  def search_object_end(mark, s, idx)
+  def search_object_end(start_mark, end_mark, s, idx)
+    point = 0
+
     while idx < s.length
       idx += 1
-      if mark == s[idx]
-        break
+
+      if start_mark == s[idx, 1]
+        point -= 1
+      end
+
+      if end_mark == s[idx, 1]
+        point += 1
+        break if point > 0
       end
     end
 
+    puts "invalid format: #{s}" if point < 0
     return idx
   end
 
   def split_objects(s)
     split_one_object(s, 0)
   end
+  
+  def split_key_value(str)
+    index = str.index(":")
+    key = parse_string(str[0, index].strip)
+    val_str = str[index + 1, str.length - 1].strip
 
-  def parse_object(obj)
+    val = if "{" == val_str[0]
+            list_str = val_str[1, (val_str.length - 2)]
+            liststr_to_kv(list_str)
+          else
+            split_one_object(val_str, 0)
+          end
+
+    [key, val]
+  end
+
+  def liststr_to_kv(list_str)
     myself = self
-    str = obj[1, obj.length - 2]
+    point = 0
+    start_index = 0
+    end_index = 0
+    array = []
 
-    kv_array = str.split(",")
-    valid_index = 0
+    list_str.each_char do |c|
+      end_index += 1
+      
+      if "{" == c or "[" == c
+        point -= 1
+      end
 
-    kv_array.each_with_index do |str, idx|
-      next if idx == 0
+      if "}" == c or "]" == c
+        point += 1
+      end
 
-      if str.include?(":")
-        valid_index = idx
-      else
-        kv_array[valid_index] = [kv_array[valid_index], str].join(",")
+      if point > -1 and c == ","
+        str = list_str[start_index, (end_index - start_index - 1)] 
+        start_index = end_index + 1
+        array << str
+      end
+
+      if end_index == (list_str.length - 1)
+        str = list_str[start_index, (end_index - start_index + 1)] 
+        start_index = end_index + 1
+        array << str
       end
     end
 
     hash = {}
 
-    kv_array.each do |kv_str|
-      next unless kv_str.include?(":")
-      kv_array = kv_str.split(":")
-      k = kv_array[0]
-      v = kv_array[1]
-      key = myself.split_one_object(k, 0)
-      val = myself.split_one_object(v, 0)
+    array.each do |str|
+      key_val_array = myself.split_key_value(str)
+      key = key_val_array[0]
+      val = key_val_array[1]
       hash[key] = val
     end
 
     hash
+  end
+
+  def parse_object(obj)
+    myself = self
+    list_str = obj[1, (obj.length - 2)]
+    liststr_to_kv(list_str)
   end
 
   def parse_array(obj)
@@ -92,11 +133,15 @@ class JSONParser
   end
 
   def parse_number(obj)
+    n = 0
+
     if obj.include?(".")
-      return obj.to_f
+      n = obj.to_f
     else
-      return obj.to_i
+      n = obj.to_i
     end
+
+    n
   end
 
   def parse_string(obj)
@@ -105,34 +150,43 @@ class JSONParser
 
   def is_number?(str)
     is_number = true
+    idx = 0
 
-    str.each_byte do |s|
-      char_result = false
+    while idx < str.length
+      s = str[idx, 1]
 
-      NUMBER_LETTERS.each_byte do |c|
-        char_result = true if s == c
+      letter_idx = 0
+      char_check_result = false
+      while letter_idx < NUMBER_LETTERS.length
+        nl = NUMBER_LETTERS[letter_idx, 1]
+        letter_idx += 1
+        if s == nl
+          char_check_result = true
+        end
       end
 
-      if char_result == false
+      if char_check_result == false
         is_number = false
-        break
       end
+
+      idx += 1
     end
 
-    return is_number
+    is_number
   end
 
   def split_one_object(s, idx)
+    myself = self
     idx = skip_white_spaces(s, idx)
     start_chr = s[idx, 1]
     object_start = idx
 
     object_end   = if    start_chr == "{"
-                     search_object_end("}", s, idx)
+                     search_object_end("{", "}", s, idx)
                    elsif start_chr == "["
-                     search_object_end("]", s, idx)
+                     search_object_end("[", "]", s, idx)
                    else
-                     search_object_end(",", s, idx)
+                     search_object_end(nil, ",", s, idx)
                    end
     obj = s[object_start, (object_end - object_start + 1)]
 
@@ -150,11 +204,7 @@ class JSONParser
            when "t"
              true
            else
-             if is_number?(obj)
-               parse_number(obj)
-             else
-               obj
-             end
+             myself.parse_number(obj)
            end
   end
 
