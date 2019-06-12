@@ -1,3 +1,11 @@
+#
+# Wio, mrubyc class library
+#
+#  Copyright (C) 2019 Shin Hiroe
+#
+#  This file is distributed under BSD 3-Clause License.
+#
+
 class Wio
 
   def socket_read(sock, bytes, buffer_size = 1024, timeout = 120)

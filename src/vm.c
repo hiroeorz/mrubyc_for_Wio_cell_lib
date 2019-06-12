@@ -400,7 +400,7 @@ static inline int op_loadnil( mrbc_vm *vm, mrbc_value *regs )
 static inline int op_loadself( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
-  
+
   mrbc_release(&regs[a]);
   mrbc_dup(&regs[0]);
   regs[a] = regs[0];
@@ -867,17 +867,17 @@ static inline int op_send_by_name( mrbc_vm *vm, const char *method_name, mrbc_va
   @param  regs  pointer to regs
   @retval 0  No error.
 */
-static inline int op_sendv( mrbc_vm *vm, mrbc_value *regs )
-{
-  FETCH_BB();
+// static inline int op_sendv( mrbc_vm *vm, mrbc_value *regs )
+// {
+//   FETCH_BB();
 
-  a = a;
-  b = b;
+//   a = a;
+//   b = b;
 
-  //  const char *sym_name = mrbc_get_irep_symbol(vm->pc_irep->ptr_to_sym, b);
+//   //  const char *sym_name = mrbc_get_irep_symbol(vm->pc_irep->ptr_to_sym, b);
 
-  return 0;
-}
+//   return 0;
+// }
 
 
 
@@ -1058,13 +1058,13 @@ static inline int op_return( mrbc_vm *vm, mrbc_value *regs )
   mrbc_release(&regs[0]);
   regs[0] = regs[a];
   regs[a].tt = MRBC_TT_EMPTY;
-  
+
   // nregs to release
   int nregs = vm->pc_irep->nregs;
 
   // restore irep,pc,regs
   mrbc_pop_callinfo(vm);
-  
+
   // clear stacked arguments
   int i;
   for( i = 1; i < nregs; i++ ) {
@@ -1091,25 +1091,21 @@ static inline int op_return_blk( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
 
-  mrbc_release(&regs[0]);
-  regs[0] = regs[a];
-  regs[a].tt = MRBC_TT_EMPTY;
-
   int nregs = vm->pc_irep->nregs;
+  mrbc_irep *caller = vm->irep;
 
-  if( vm->callinfo_tail->mid == 0 ){
-    // nested block?
-    uint8_t *inst = vm->callinfo_tail->inst;
-    while( vm->callinfo_tail->inst == inst ){
-      nregs += vm->callinfo_tail->n_args;
-      mrbc_pop_callinfo(vm);
-      nregs += vm->callinfo_tail->n_args;
-      mrbc_pop_callinfo(vm);
-    }
-  } else {
-    // simple return
+  // trace back to caller
+  while( vm->callinfo_tail->pc_irep != caller ){
+    nregs += vm->callinfo_tail->n_args;
     mrbc_pop_callinfo(vm);
   }
+  mrbc_release(&vm->current_regs[0]);
+
+  // ret value
+  vm->current_regs[0] = regs[a];
+  regs[a].tt = MRBC_TT_EMPTY;
+
+  mrbc_pop_callinfo(vm);
 
   // clear stacked arguments
   int i;
@@ -1137,7 +1133,7 @@ static inline int op_break( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
 
-  a = a;
+  (void)a;
 
   // pop until bytecode is OP_SENDB
   mrbc_callinfo *callinfo = vm->callinfo_tail;
@@ -1404,7 +1400,7 @@ static inline int op_mul( mrbc_vm *vm, mrbc_value *regs )
     }
     #endif
   }
-  
+
   // other case
   op_send_by_name(vm, "*", regs, a, 0, 1, 0);
 
@@ -1506,7 +1502,7 @@ static inline int op_lt( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
 
-  int result;
+  int result = 0;
 
   if( regs[a].tt == MRBC_TT_FIXNUM ) {
     if( regs[a+1].tt == MRBC_TT_FIXNUM ) {
@@ -1557,7 +1553,7 @@ static inline int op_le( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
 
-  int result;
+  int result = 0;
 
   if( regs[a].tt == MRBC_TT_FIXNUM ) {
     if( regs[a+1].tt == MRBC_TT_FIXNUM ) {
@@ -1608,7 +1604,7 @@ static inline int op_gt( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
 
-  int result;
+  int result = 0;
 
   if( regs[a].tt == MRBC_TT_FIXNUM ) {
     if( regs[a+1].tt == MRBC_TT_FIXNUM ) {
@@ -1659,7 +1655,7 @@ static inline int op_ge( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
 
-  int result;
+  int result = 0;
 
   if( regs[a].tt == MRBC_TT_FIXNUM ) {
     if( regs[a+1].tt == MRBC_TT_FIXNUM ) {
@@ -2042,25 +2038,25 @@ static inline int op_hash( mrbc_vm *vm, mrbc_value *regs )
   @param  regs  pointer to regs
   @retval 0  No error.
 */
-static inline int op_block( mrbc_vm *vm, mrbc_value *regs )
-{
-  FETCH_BB();
+// static inline int op_block( mrbc_vm *vm, mrbc_value *regs )
+// {
+//   FETCH_BB();
 
-  mrbc_release(&regs[a]);
+//   mrbc_release(&regs[a]);
 
-  // new proc
-  mrbc_proc *proc = mrbc_rproc_alloc(vm, "");
-  if( !proc ) return 0;	// ENOMEM
-  proc->c_func = 0;
-  proc->sym_id = -1;
-  proc->next = NULL;
-  proc->irep = vm->pc_irep->reps[b];
+//   // new proc
+//   mrbc_proc *proc = mrbc_rproc_alloc(vm, "");
+//   if( !proc ) return 0;	// ENOMEM
+//   proc->c_func = 0;
+//   proc->sym_id = -1;
+//   proc->next = NULL;
+//   proc->irep = vm->pc_irep->reps[b];
 
-  regs[a].tt = MRBC_TT_PROC;
-  regs[a].proc = proc;
+//   regs[a].tt = MRBC_TT_PROC;
+//   regs[a].proc = proc;
 
-  return 0;
-}
+//   return 0;
+// }
 
 
 
@@ -2217,17 +2213,19 @@ static inline int op_def( mrbc_vm *vm, mrbc_value *regs )
   mrbc_class *cls = regs[a].cls;
   const char *sym_name = mrbc_get_irep_symbol(vm->pc_irep->ptr_to_sym, b);
   mrbc_sym sym_id = str_to_symid(sym_name);
-
   mrbc_proc *proc = regs[a+1].proc;
+
+  mrbc_set_vm_id(proc, 0);
   proc->sym_id = sym_id;
 #ifdef MRBC_DEBUG
   proc->names = sym_name;
 #endif
 
-  proc->ref_count++;
+  // add to class
   proc->next = cls->procs;
   cls->procs = proc;
 
+  regs[a+1].tt = MRBC_TT_EMPTY;
   return 0;
 }
 
@@ -2250,7 +2248,7 @@ static inline int op_alias( mrbc_vm *vm, mrbc_value *regs )
 
   const char *sym_name_a = mrbc_get_irep_symbol(vm->pc_irep->ptr_to_sym, a);
   mrbc_sym sym_id_a = str_to_symid(sym_name_a);
-  const char *sym_name_b = mrbc_get_irep_symbol(vm->pc_irep->ptr_to_sym, b); 
+  const char *sym_name_b = mrbc_get_irep_symbol(vm->pc_irep->ptr_to_sym, b);
   mrbc_sym sym_id_b = str_to_symid(sym_name_b);
 
   // find method only in this class.
@@ -2296,8 +2294,8 @@ static inline int op_sclass( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
   // currently, not supported
-  a = a;
-  
+  (void)a;
+
   return 0;
 }
 
@@ -2568,8 +2566,8 @@ void output_opcode( uint8_t opcode )
     0,         "APOST",   0,         "STRING",
     // 0x50
     "STRCAT",  "HASH",    0,         0,
-    0,         "BLOCK",   "METHOD",  0,
-    0,         0,         "CLASS",   0,
+    0,         "BLOCK",   "METHOD",  "RANGE_INC",
+    "RANGE_EXC", 0,       "CLASS",   0,
     "EXEC",    "DEF",     0,         0,
     // 0x60
     "",        "TCLASS",  "",        "",

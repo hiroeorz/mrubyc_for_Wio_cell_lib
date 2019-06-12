@@ -34,4 +34,6 @@ void mrbc_define_wio_methods(void)
   if (NULL == mrbc_create_task(mruby_wio_code, 0)) {
     hal_write_string((char *)"!!! wio bytecode load error\n");
   }
+
+  mrbc_run();
 }

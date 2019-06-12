@@ -16,6 +16,10 @@ mruby/cでコードを書いたLED制御サンプル（クリックで再生）�
 2. `Wio 3G` `Wio LTE M1/NB1` の場合は、 `Wio cell lib` で検索し、 `Wio cell lib for Arduino` の最新版をインストールします。
 2. `Wio LTE` の場合は、 `Wio LTE` で検索し、 `Wio LTE for Arduino` の最新版をインストールします。
 
+## Arduino Client for MQTT のインストール
+
+1. [SeeedJP/pubsubclient](https://github.com/SeeedJP/pubsubclient)のREADMEに従い、 `Arduino Client for MQTT` をインストールします。
+
 ## Install
 
 本リポジトリをcloneします.
@@ -38,6 +42,8 @@ $ cp -r mrubyc_for_Wio_cell_lib  ~/Documents/Arduino/libraries/
 
 * [Wioクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/Wio.md)
 * [SerialUARTクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/SerialUART.md)
+* [MQTTClientクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/MQTT.md)
+* [JSONクラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/JSON.md)
 
 ## Examples
 

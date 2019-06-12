@@ -18,3 +18,6 @@ mrbc:
 install:
 	rm -rf $(TARGET)
 	cp -r ../mrubyc_for_Wio_cell_lib $(TARGET)
+
+clean:
+	rm -rf $(RUBY_OUTPUT) $(OUTPUT).tmp

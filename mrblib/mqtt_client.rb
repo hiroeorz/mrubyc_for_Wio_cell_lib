@@ -1,22 +1,22 @@
+#
+# MQTTClient, mrubyc class library
+#
+#  Copyright (C) 2019 Shin Hiroe
+#
+#  This file is distributed under BSD 3-Clause License.
+#
+
 class MQTTClient
 
-  def self.open(host, port = 1883, id = nil)
-    puts "self.open-------------------------------------------"
-    p 0
+  def self.open(host, port, connect_id, &block)
     client = MQTTClient.new
-    success = client.connect(host, port, "hello")    
+    success = client.connect(host, port, connect_id)
 
     if success
-      client.call_block
+      block.call(client)
     else
       puts "ERROR: MQTT connect failure!"
     end
-  end
-
-  def call_block
-    puts "call_block----------------------------"
-    yield self
-    disconnect
   end
 
   def wait_loop(seconds)

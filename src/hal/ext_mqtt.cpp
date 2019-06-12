@@ -47,7 +47,7 @@ static void class_mqtt_client_connect(mrb_vm *vm, mrb_value *v, int argc)
   if (argc >= 2) { port = (int)GET_INT_ARG(2); }
 
   uint8_t *connect_id = NULL;
-  if (argc >= 3) { connect_id = GET_STRING_ARG(1); }
+  if (argc >= 3) { connect_id = GET_STRING_ARG(3); }
 
 
   mqtt_client->setServer((const char *)host, port);

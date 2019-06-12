@@ -79,7 +79,8 @@
 #define MRBC_DEBUG
 #endif
 
-// for Wio3G Setting
+#if !defined(MRBC_NO_TIMER)
 #define MRBC_NO_TIMER
+#endif
 
 #endif
