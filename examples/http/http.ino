@@ -3,7 +3,7 @@
 
 extern const uint8_t code[];
 
-#define MEMSIZE (1024*30)
+#define MEMSIZE (1024*40)
 static uint8_t mempool[MEMSIZE];
 
 void setup() {

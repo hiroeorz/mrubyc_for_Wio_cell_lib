@@ -129,7 +129,14 @@ class JSONParser
   def parse_array(obj)
     myself = self
     str = obj[1, obj.length - 2]
-    return str.split(",").collect{ |e| myself.split_one_object(e, 0) }
+    array = str.split(",")
+    array2 = []
+
+    array.each do |e|
+      array2 << myself.split_one_object(e.strip, 0)
+    end
+    
+    return array2
   end
 
   def parse_number(obj)

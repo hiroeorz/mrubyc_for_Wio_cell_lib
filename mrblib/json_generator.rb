@@ -58,7 +58,13 @@ end
 class Array
 
   def to_json
-    "[" + collect{ |e| e.to_json }.join(",") + "]"
+    array = []
+
+    self.each do |e|
+      array << e.to_json
+    end
+
+    "[" + array.join(",") + "]"
   end
 
 end
