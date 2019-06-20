@@ -18,5 +18,6 @@ void define_wio_class(void);
 void define_arduino_class(void);
 void define_serial_uart_class(void);
 void define_mqtt_client_class(void);
+void define_string_ext_class(void);
 
 #endif
