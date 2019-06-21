@@ -117,3 +117,16 @@ MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
 end
 ```
 
+### connected?
+
+```ruby
+MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
+  mqtt.connected? #=> true or false
+end
+```
+
+#### 説明
+
+MQTTが接続状態であればture, 接続状態でなければfalseを返します。
+
+

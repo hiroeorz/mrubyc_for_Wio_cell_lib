@@ -136,6 +136,22 @@ static void class_mqtt_client_loop_msec(mrb_vm *vm, mrb_value *v, int argc)
   SET_NIL_RETURN();
 }
 
+static void class_mqtt_client_is_connected(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_FALSE_RETURN();
+    return;
+  }
+
+  bool connected = mqtt_client->connected();
+  if (connected) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
 void define_mqtt_client_class()
 {
   wio = (WioCellular*)hal_get_modem_obj();
@@ -151,4 +167,5 @@ void define_mqtt_client_class()
   mrbc_define_method(0, class_mqtt_client, "publish", class_mqtt_client_publish);
   mrbc_define_method(0, class_mqtt_client, "subscribe", class_mqtt_client_subscribe);
   mrbc_define_method(0, class_mqtt_client, "loop_msec", class_mqtt_client_loop_msec);
+  mrbc_define_method(0, class_mqtt_client, "connected?", class_mqtt_client_is_connected);
 }
