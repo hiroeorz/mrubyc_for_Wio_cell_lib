@@ -8,6 +8,10 @@
 
 class MQTTClient
 
+  def initialize
+    @callback = Proc.new{ puts "call from proc object"}
+  end
+
   def self.open(host, port, connect_id, &block)
     client = MQTTClient.new
     success = client.connect(host, port, connect_id)
@@ -21,6 +25,10 @@ class MQTTClient
 
   def wait_loop(seconds)
     loop_msec(seconds * 1000)
+  end
+
+  def receive_callback(topic, payload)
+    @callback.call(topic, payload) if @callback
   end
 
 end

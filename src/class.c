@@ -35,8 +35,6 @@
 #include "c_string.h"
 #include "c_range.h"
 
-
-
 //================================================================
 /*! Check the class is the class of object.
 
@@ -334,6 +332,10 @@ void mrbc_funcall(struct VM *vm, const char *name, mrbc_value *v, int argc)
 {
   mrbc_sym sym_id = str_to_symid(name);
   mrbc_proc *m = find_method(vm, &v[0], sym_id);
+
+  if ( m==0) {
+    console_printf("ERROR: no method.");
+  }
 
   if( m==0 ) return;   // no method
 

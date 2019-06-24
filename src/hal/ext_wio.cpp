@@ -561,6 +561,44 @@ static void class_wio_get_location(mrb_vm *vm, mrb_value *v, int argc)
   SET_RETURN(location);
 }
 
+static void class_wio_receive_sms(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  char message[128];
+  char dial_number[128];
+  int receive_size = wio->ReceiveSMS(message, sizeof(message), dial_number, sizeof(dial_number));
+
+  if (receive_size < 1) {
+    SET_NIL_RETURN();
+  } else {
+    message[receive_size] = '\0';
+    mrbc_value str = mrbc_string_new_cstr(vm, (const char *)message);
+    SET_RETURN(str);
+  }
+}
+
+static void class_wio_delete_received_sms(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  bool success = wio->DeleteReceivedSMS();
+
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
 #else
 /*************************** Wio 3G Wio LTE NB1/M1 ONLY *******************************/
 
@@ -632,6 +670,8 @@ void define_wio_class()
   mrbc_define_method(0, class_wio, "wakeup", class_wio_wakeup);
   mrbc_define_method(0, class_wio, "get_iccid", class_wio_get_iccid);
   mrbc_define_method(0, class_wio, "get_location", class_wio_get_location);
+  mrbc_define_method(0, class_wio, "receive_sms", class_wio_receive_sms);
+  mrbc_define_method(0, class_wio, "delete_received_sms", class_wio_delete_received_sms);
 #else
   mrbc_define_method(0, class_wio, "send_ussd", class_wio_send_ussd);
 #endif
