@@ -7,7 +7,12 @@ sleep 1
 wio.activate("soracom.io", "sora", "sora")
 
 MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
-  puts "ok connected."
+  puts "ok connected(1)"
+  mqtt.publish("test", "topic from mruby/c on Wio Board (in block).")
+end
+
+MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
+  puts "ok connected(2)"
   mqtt.publish("test", "topic from mruby/c on Wio Board (in block).")
   mqtt.subscribe("test")
 

@@ -73,13 +73,12 @@ static void class_mqtt_client_connect(mrb_vm *vm, mrbc_value *v, int argc)
 
 
   mqtt_client->setServer((const char *)host, port);
-  mqtt_client->setCallback(mqtt_subscribe_callback);
   mqtt_client->setClient(*wio_client);
   bool success = mqtt_client->connect((const char *)connect_id);
 
   if (success) {
-    callback_vm = vm;
-    callback_receiver = &v[1];
+  //callback_vm = vm;
+  //callback_receiver = &v[1];
     SET_TRUE_RETURN();
   } else {
     SET_FALSE_RETURN();
@@ -127,6 +126,7 @@ static void class_mqtt_client_subscribe(mrb_vm *vm, mrb_value *v, int argc)
 
   uint8_t *topic = GET_STRING_ARG(1);
   bool success = false;
+  mqtt_client->setCallback(mqtt_subscribe_callback);
 
   if (argc == 1) {
     success = mqtt_client->subscribe((const char *)topic);
@@ -135,6 +135,24 @@ static void class_mqtt_client_subscribe(mrb_vm *vm, mrb_value *v, int argc)
     success = mqtt_client->subscribe((const char *)topic, qos);
   }
 
+  if (success) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
+static void class_mqtt_client_unsubscribe(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_FALSE_RETURN();
+    return;
+  }
+
+  uint8_t *topic = GET_STRING_ARG(1);
+  bool success = mqtt_client->unsubscribe((const char *)topic);
+  
   if (success) {
     SET_TRUE_RETURN();
   } else {
@@ -195,6 +213,7 @@ void define_mqtt_client_class()
   mrbc_define_method(0, class_mqtt_client, "disconnect", class_mqtt_client_disconnect);
   mrbc_define_method(0, class_mqtt_client, "publish", class_mqtt_client_publish);
   mrbc_define_method(0, class_mqtt_client, "subscribe", class_mqtt_client_subscribe);
+  mrbc_define_method(0, class_mqtt_client, "unsubscribe", class_mqtt_client_unsubscribe);
   mrbc_define_method(0, class_mqtt_client, "loop_msec", class_mqtt_client_loop_msec);
   mrbc_define_method(0, class_mqtt_client, "connected?", class_mqtt_client_is_connected);
 
