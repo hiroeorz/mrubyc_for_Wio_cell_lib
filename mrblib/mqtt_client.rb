@@ -10,6 +10,14 @@ class MQTTClient
 
   def initialize
     @callback = Proc.new{ puts "call from proc object"}
+    @_received_data = nil
+  end
+
+  def get_subscribed_data
+    data = @_received_data
+    return nil if @_received_data.nil?
+    @_received_data = nil
+    return data
   end
 
   def self.open(host, port, connect_id, &block)

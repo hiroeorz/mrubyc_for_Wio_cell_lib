@@ -26,35 +26,20 @@ static mrbc_value *callback_receiver = NULL;
 void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
 {
   char payload_str[len + 1];
-
   for (int i = 0; i < (int)len; i++){
     payload_str[i] = payload[i];
   }
   payload_str[len] = '\0';
 
-  SerialUSB.print("received: ");
-  SerialUSB.print(topic);
-  SerialUSB.print("  payload: ");
-  SerialUSB.println(payload_str);
-
-  mrbc_value topic_obj = mrbc_string_new_cstr(0, (const char *)topic);
-  mrbc_value payload_obj = mrbc_string_new_cstr(0, (const char *)payload);
+  char topic_str[sizeof(topic)];
+  strcpy(topic_str, topic);
+  mrbc_value topic_obj = mrbc_string_new_cstr(0, (const char *)topic_str);
+  mrbc_value payload_obj = mrbc_string_new_cstr(0, (const char *)payload_str);
   mrbc_value obj = mrbc_hash_new(0, 2);
   mrbc_hash_set(&obj, &topic_obj, &payload_obj);
-  
-  //mrbc_value v[] = {};
-  //mrbc_send(callback_vm, v, 0, callback_receiver, "recv_test", 0);
 
-  mrbc_value v[] = {*callback_receiver};
-  mrbc_funcall(callback_vm, "receive_callback", v, 0);
-  DEBUG_PRINT("funcalled.");
-}
-
-
-static void class_mqtt_client_recv_callback_exec(mrb_vm *vm, mrb_value *v, int argc)
-{
-  SerialUSB.println("received in c function");
-  mrbc_funcall(vm, "receive_callback", v, 0);  // not work...
+  mrbc_sym sym_id = str_to_symid("_received_data");
+  mrbc_instance_setiv(callback_receiver, sym_id, &obj);
 }
 
 static void class_mqtt_client_initialize(mrb_vm *vm, mrb_value *v, int argc)
@@ -77,8 +62,8 @@ static void class_mqtt_client_connect(mrb_vm *vm, mrbc_value *v, int argc)
   bool success = mqtt_client->connect((const char *)connect_id);
 
   if (success) {
-  //callback_vm = vm;
-  //callback_receiver = &v[1];
+    callback_vm = vm;
+    callback_receiver = &v[1];
     SET_TRUE_RETURN();
   } else {
     SET_FALSE_RETURN();
@@ -216,6 +201,4 @@ void define_mqtt_client_class()
   mrbc_define_method(0, class_mqtt_client, "unsubscribe", class_mqtt_client_unsubscribe);
   mrbc_define_method(0, class_mqtt_client, "loop_msec", class_mqtt_client_loop_msec);
   mrbc_define_method(0, class_mqtt_client, "connected?", class_mqtt_client_is_connected);
-
-  mrbc_define_method(0, class_mqtt_client, "recv_test", class_mqtt_client_recv_callback_exec);
 }

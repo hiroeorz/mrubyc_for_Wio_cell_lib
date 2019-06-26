@@ -2,21 +2,25 @@ puts "MQTT Client for mruby/c"
 
 wio = Wio.new
 wio.power_supply_cellular(true)
+wio.power_supply_led(true)
 wio.turn_on_or_reset
 sleep 1
 wio.activate("soracom.io", "sora", "sora")
 
-MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
-  puts "ok connected(1)"
-  mqtt.publish("test", "topic from mruby/c on Wio Board (in block).")
-end
 
 MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
-  puts "ok connected(2)"
-  mqtt.publish("test", "topic from mruby/c on Wio Board (in block).")
+  puts "ok connected"
+  mqtt.publish("test", "topic from mruby/c on Wio Board.")
   mqtt.subscribe("test")
 
-  loop do
-    mqtt.wait_loop(3)
+  while true
+    data = mqtt.get_subscribed_data
+    if data
+      puts "recived! #{data["test"]}"
+    end
+
+    mqtt.wait_loop(1)
   end
 end
+
+puts "finished."
