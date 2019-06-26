@@ -50,7 +50,7 @@ end
 class NilClass
 
   def to_json
-    "NULL"
+    "null"
   end
 
 end
