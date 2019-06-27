@@ -7,7 +7,26 @@ wio.turn_on_or_reset
 sleep 1
 wio.activate("soracom.io", "sora", "sora")
 
+mqtt = MQTTClient.new
+mqtt.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
+  puts "ok connected"
+  mqtt.publish("test", "topic from mruby/c on Wio Board.")
+  mqtt.subscribe("test")
 
+  while true
+    data = mqtt.get_subscribed_data
+    if data
+      puts "recived! #{data["test"]}"
+    end
+
+    mqtt.wait_loop(1)
+  end
+end
+
+puts "finished."
+
+
+=begin
 MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
   puts "ok connected"
   mqtt.publish("test", "topic from mruby/c on Wio Board.")
@@ -24,3 +43,5 @@ MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
 end
 
 puts "finished."
+=end
+

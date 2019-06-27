@@ -22,28 +22,31 @@ static WioCellularClient *wio_client = NULL;
 static PubSubClient *mqtt_client = NULL;
 static VM *callback_vm = NULL;
 static mrbc_value *callback_receiver = NULL;
+static const char recive_data_iv_name[] = "_received_data";
 
 void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
 {
   char payload_str[len + 1];
   for (int i = 0; i < (int)len; i++){
-    payload_str[i] = payload[i];
+    payload_str[i] = (char)payload[i];
   }
   payload_str[len] = '\0';
 
   char topic_str[sizeof(topic)];
   strcpy(topic_str, topic);
-  mrbc_value topic_obj = mrbc_string_new_cstr(0, (const char *)topic_str);
-  mrbc_value payload_obj = mrbc_string_new_cstr(0, (const char *)payload_str);
-  mrbc_value obj = mrbc_hash_new(0, 2);
-  mrbc_hash_set(&obj, &topic_obj, &payload_obj);
 
-  mrbc_sym sym_id = str_to_symid("_received_data");
+  mrbc_value topic_key = mrbc_string_new_cstr(callback_vm, "topic");
+  mrbc_value payload_key = mrbc_string_new_cstr(callback_vm, "payload");
+  mrbc_value topic_obj = mrbc_string_new_cstr(callback_vm, (const char *)topic_str);
+  mrbc_value payload_obj = mrbc_string_new_cstr(callback_vm, (const char *)payload_str);
+
+  mrbc_value obj = mrbc_hash_new(callback_vm, 2);
+  mrbc_hash_set(&obj, &topic_key, &topic_obj);
+  mrbc_hash_set(&obj, &payload_key, &payload_obj);
+
+  mrbc_symbol_new(callback_vm, recive_data_iv_name);
+  mrbc_sym sym_id = str_to_symid(recive_data_iv_name);
   mrbc_instance_setiv(callback_receiver, sym_id, &obj);
-}
-
-static void class_mqtt_client_initialize(mrb_vm *vm, mrb_value *v, int argc)
-{
 }
 
 static void class_mqtt_client_connect(mrb_vm *vm, mrbc_value *v, int argc)
@@ -193,7 +196,6 @@ void define_mqtt_client_class()
   static mrb_class *class_mqtt_client;
   class_mqtt_client = mrbc_define_class(0, "MQTTClient", mrbc_class_object);
 
-  mrbc_define_method(0, class_mqtt_client, "initialize", class_mqtt_client_initialize);
   mrbc_define_method(0, class_mqtt_client, "connect", class_mqtt_client_connect);
   mrbc_define_method(0, class_mqtt_client, "disconnect", class_mqtt_client_disconnect);
   mrbc_define_method(0, class_mqtt_client, "publish", class_mqtt_client_publish);

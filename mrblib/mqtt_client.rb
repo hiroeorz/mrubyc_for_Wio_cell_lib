@@ -9,8 +9,11 @@
 class MQTTClient
 
   def initialize
-    @callback = Proc.new{ puts "call from proc object"}
     @_received_data = nil
+  end
+
+  def received_data
+    @_received_data
   end
 
   def get_subscribed_data
@@ -26,6 +29,17 @@ class MQTTClient
 
     if success
       block.call(client)
+      client.disconnect
+    else
+      puts "ERROR: MQTT connect failure!"
+    end
+  end
+
+  def open(host, port, connect_id, &block)
+    success = connect(host, port, connect_id)
+
+    if success
+      block.call(self)
       client.disconnect
     else
       puts "ERROR: MQTT connect failure!"
