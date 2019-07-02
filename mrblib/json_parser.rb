@@ -44,7 +44,7 @@ class JSONParser
     while idx < s.length
       idx += 1
 
-      if start_mark == s[idx, 1]
+      if start_mark != end_mark and start_mark == s[idx, 1]
         point -= 1
       end
 
@@ -97,14 +97,14 @@ class JSONParser
 
       if point > -1 and c == ","
         str = list_str[start_index, (end_index - start_index - 1)] 
-        start_index = end_index + 1
-        array << str
+        start_index = end_index
+        array << str.strip
       end
 
       if end_index == (list_str.length - 1)
         str = list_str[start_index, (end_index - start_index + 1)] 
         start_index = end_index + 1
-        array << str
+        array << str.strip
       end
     end
 
@@ -192,6 +192,8 @@ class JSONParser
                      search_object_end("{", "}", s, idx)
                    elsif start_chr == "["
                      search_object_end("[", "]", s, idx)
+                   elsif start_chr == "\""
+                     search_object_end("\"", "\"", s, idx)
                    else
                      search_object_end(nil, ",", s, idx)
                    end
