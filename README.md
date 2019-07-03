@@ -119,7 +119,7 @@ void loop() {
 ## Other
 
 * 本ライブラリは[Wio_cell_lib_for_Arduino](https://github.com/SeeedJP/Wio_cell_lib_for_Arduino)および[Wio LTE for Arduino](https://github.com/SeeedJP/WioLTEforArduino)に依存します。
-* 本ライブラリはmruby/c 1.2のソースコードを含んでいます。
+* 本ライブラリはmruby/c 2.0のソースコードを含んでいます。
 * 作者は手元にWio3Gしか持っていないため、Wio3Gでの動作確認はしていますが、Wio LTEおよびWio LTE N1/NB1での動作確認は行なっておりません。
 
 
