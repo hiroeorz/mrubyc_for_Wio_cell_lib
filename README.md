@@ -72,6 +72,39 @@ while true
 end
 ```
 
+また、簡易なJSONパーサ、ジェネレータも持っています。
+
+```ruby:examples/json/task1.rb
+  obj = {:di => [1, 2, 3], :ai => [20, 30, 40], :alert => 0, :flag => false}
+  json = obj.to_json
+```
+
+MQTTClientクラスは以下のように使います。
+
+```ruby:examples/mqtt/task1.rb
+wio = Wio.new
+wio.power_supply_cellular(true)
+wio.power_supply_led(true)
+wio.turn_on_or_reset
+sleep 1
+wio.activate("soracom.io", "sora", "sora")
+
+MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
+  puts "ok connected"
+  mqtt.publish("test", "topic from mruby/c on Wio Board.")
+  mqtt.subscribe("test")
+
+  while true
+    data = mqtt.get_subscribed_data
+    if data
+      puts "recived! #{data["test"]}"
+    end
+
+    mqtt.wait_loop(1)
+  end
+end
+```
+
 * 初期状態で Wio <-> PC 間の通信スピードは `115200bps` です。  `puts` などの出力を見る場合はシリアルモニタの速度を `115200bps` に設定してください。
 * 通信速度を変更する場合は `Wio` クラスのインスタンスを生成する際に引数で通信速度を渡してください・
   * 例: `wio = Wio.new(9600)`
