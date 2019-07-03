@@ -9,13 +9,16 @@ wio.activate("soracom.io", "sora", "sora")
 send_data = {:di => [1, 2, 3], :ai => [20, 30, 40], :alert => 0, :flag => false}
 
 MQTTClient.open("beam.soracom.io", 1883, "") do |mqtt|
-  puts "ok connected."
-  
-  3.times do
-    mqtt.publish("ds", send_data.to_json)
+  mqtt.subscribe("test")
+  mqtt.publish("test", send_data.to_json)
+
+  while true
+    data = mqtt.get_subscribed_data
+
+    if data
+      puts "recived! #{data["test"]}"
+    end
+    
+    mqtt.wait_loop(1)
   end
-
-  puts "MQTT message sent to AWS IoT."
 end
-
-puts "connection closed."
