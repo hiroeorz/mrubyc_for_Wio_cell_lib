@@ -77,6 +77,8 @@ end
 ```ruby:examples/json/task1.rb
   obj = {:di => [1, 2, 3], :ai => [20, 30, 40], :alert => 0, :flag => false}
   json = obj.to_json
+
+  JSON.parse('{"name": "hiroe", "age": 43, "weight": 70.2, "lover": null}')
 ```
 
 MQTTClientクラスは以下のように使います。

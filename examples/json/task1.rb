@@ -18,7 +18,7 @@ while true # check memory leak.
   obj = JSON.parse(' ["foo", "bar"]')
   p obj
 
-  obj = JSON.parse('  {"name": "hiroe", "age": 43, "weight": 70.2, "lover": NULL, "fb": "foobaa"}')
+  obj = JSON.parse('  {"name": "hiroe", "age": 43, "weight": 70.2, "lover":null, "fb": "foobaa"}')
   p obj
 
   obj = JSON.parse('{"membars": ["hiroe", "ito", "takeshita"]}')
