@@ -75,10 +75,11 @@ end
 また、簡易なJSONパーサ、ジェネレータも持っています。
 
 ```ruby:examples/json/task1.rb
-  obj = {:di => [1, 2, 3], :ai => [20, 30, 40], :alert => 0, :flag => false}
-  json = obj.to_json
+  {:di => [1, 2, 3], :ai => [20, 30, 40], :alert => 0, :flag => false}.to_json
+  #=> "{\"di\":[1,2,3],\"ai\":[20,30,40],\"alert\":0,\"flag\":false}"
 
   JSON.parse('{"name": "hiroe", "age": 43, "weight": 70.2, "lover": null}')
+  #=> {"name" => "hiroe", "age" => 43, "weight" => 70.2, "lover" => nil}
 ```
 
 MQTTClientクラスは以下のように使います。
