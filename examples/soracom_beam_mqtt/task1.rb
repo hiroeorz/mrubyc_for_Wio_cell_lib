@@ -19,7 +19,3 @@ MQTTClient.open("beam.soracom.io", 1883, "") do |mqtt|
 end
 
 puts "connection closed."
-
-loop do
-  sleep 1
-end
