@@ -72,6 +72,11 @@ while true
 end
 ```
 
+* 初期状態で Wio <-> PC 間の通信スピードは `115200bps` です。  `puts` などの出力を見る場合はシリアルモニタの速度を `115200bps` に設定してください。
+* 通信速度を変更する場合は `Wio` クラスのインスタンスを生成する際に引数で通信速度を渡してください・
+  * 例: `wio = Wio.new(9600)`
+
+
 また、簡易なJSONパーサ、ジェネレータも持っています。
 
 ```ruby:examples/json/task1.rb
@@ -82,35 +87,27 @@ end
   #=> {"name" => "hiroe", "age" => 43, "weight" => 70.2, "lover" => nil}
 ```
 
-MQTTClientクラスは以下のように使います。
+MQTTプロトコルを通じてSORACOM Beamに接続するmrubycコードは以下のように使います。
 
 ```ruby:examples/mqtt/task1.rb
 wio = Wio.new
 wio.power_supply_cellular(true)
-wio.power_supply_led(true)
 wio.turn_on_or_reset
 sleep 1
+
 wio.activate("soracom.io", "sora", "sora")
+send_data = {:di => [1, 2, 3], :ai => [20, 30, 40], :alert => 0, :flag => false}
 
-MQTTClient.open("test.mosquitto.org", 1883, "mrubyc") do |mqtt|
-  puts "ok connected"
-  mqtt.publish("test", "topic from mruby/c on Wio Board.")
-  mqtt.subscribe("test")
-
-  while true
-    data = mqtt.get_subscribed_data
-    if data
-      puts "recived! #{data["test"]}"
-    end
-
-    mqtt.wait_loop(1)
+MQTTClient.open("beam.soracom.io", 1883, "") do |mqtt|
+  puts "ok connected."
+  
+  3.times do
+    mqtt.publish("ds", send_data.to_json)
   end
+
+  puts "MQTT message sent to AWS IoT."
 end
 ```
-
-* 初期状態で Wio <-> PC 間の通信スピードは `115200bps` です。  `puts` などの出力を見る場合はシリアルモニタの速度を `115200bps` に設定してください。
-* 通信速度を変更する場合は `Wio` クラスのインスタンスを生成する際に引数で通信速度を渡してください・
-  * 例: `wio = Wio.new(9600)`
 
 ここで、このディレクトリ内で `make` を実行すると `task.c` が生成されます。
 この `task.c` を読み込んで実行するArduinoスケッチは以下のようになります。
