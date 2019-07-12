@@ -40,7 +40,7 @@ class MQTTClient
 
     if success
       block.call(self)
-      client.disconnect
+      disconnect
     else
       puts "ERROR: MQTT connect failure!"
     end
