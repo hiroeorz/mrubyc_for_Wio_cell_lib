@@ -54,6 +54,7 @@ void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
 
   mrbc_symbol_new(callback_vm, recive_data_iv_name);
   mrbc_instance_setiv(callback_receiver, sym_id, &obj);
+  mrbc_dec_ref_counter(&obj);
 }
 
 static void class_mqtt_client_connect(mrb_vm *vm, mrbc_value *v, int argc)
