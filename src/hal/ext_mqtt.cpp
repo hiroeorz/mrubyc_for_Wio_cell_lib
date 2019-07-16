@@ -23,9 +23,17 @@ static PubSubClient *mqtt_client = NULL;
 static VM *callback_vm = NULL;
 static mrbc_value *callback_receiver = NULL;
 static const char recive_data_iv_name[] = "_received_data";
+static const char recive_data_iv_mutex_name[] = "_received_data_mutex";
 
 void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
 {
+  mrbc_sym sym_id = str_to_symid(recive_data_iv_name);
+  mrbc_value receive_data = mrbc_instance_getiv(callback_receiver, sym_id);
+
+  if (receive_data.tt != MRBC_TT_NIL) {
+    return; // return if before data is exist.
+  }
+
   char payload_str[len + 1];
   for (int i = 0; i < (int)len; i++){
     payload_str[i] = (char)payload[i];
@@ -45,7 +53,6 @@ void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
   mrbc_hash_set(&obj, &payload_key, &payload_obj);
 
   mrbc_symbol_new(callback_vm, recive_data_iv_name);
-  mrbc_sym sym_id = str_to_symid(recive_data_iv_name);
   mrbc_instance_setiv(callback_receiver, sym_id, &obj);
 }
 
