@@ -24,7 +24,14 @@ while true # check memory leak.
   obj = JSON.parse('{"membars": ["hiroe", "ito", "takeshita"]}')
   p obj
 
+  obj = JSON.parse('{"counts": [1, 2, 3]}')
+  p obj
+
   obj = JSON.parse('{"me": {"name": "hiroe", "age": 43}}')
+  p obj
+
+  # sample
+  obj = JSON.parse('{"code":3, "bits":[1,2], "request_code":"D9658B82-5A0A-4AF4-8CB6-73E0B39BEE6D"}')
   p obj
 
   puts "------------- finish -------------"

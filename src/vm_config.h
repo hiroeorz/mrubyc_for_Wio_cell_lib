@@ -25,9 +25,9 @@
 #define MAX_REGS_SIZE 100
 #endif
 
-// maximum number of symbols
+// maximum number of symbols (change 300 -> 600)
 #if !defined(MAX_SYMBOLS_COUNT)
-#define MAX_SYMBOLS_COUNT 300
+#define MAX_SYMBOLS_COUNT 600
 #endif
 
 

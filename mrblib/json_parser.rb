@@ -132,8 +132,11 @@ class JSONParser
     array = str.split(",")
     array2 = []
 
-    array.each do |e|
+    i = 0
+    while i < array.length
+      e = array[i]
       array2 << myself.split_one_object(e.strip, 0)
+      i += 1
     end
     
     return array2
@@ -197,6 +200,7 @@ class JSONParser
                    else
                      search_object_end(nil, ",", s, idx)
                    end
+
     obj = s[object_start, (object_end - object_start + 1)]
 
     return case start_chr
