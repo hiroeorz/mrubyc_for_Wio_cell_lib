@@ -4,7 +4,6 @@ wio = Wio.new
 wio.power_supply_grove(true)
 
 sht31 = SHT31.new
-sht31.begin
 
 while true  
   tmp = sht31.get_temperature

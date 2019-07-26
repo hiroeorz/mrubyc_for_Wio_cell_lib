@@ -12,7 +12,7 @@
 
 static SHT31* sht31 = NULL;
 
-static void class_sht31_begin(mrb_vm *vm, mrb_value *v, int argc)
+static void class_sht31_init(mrb_vm *vm, mrb_value *v, int argc)
 {
   hal_init_sht31();
   sht31 = (SHT31*)hal_get_sht31_obj();
@@ -48,7 +48,7 @@ void define_sht31_class()
 {
   mrb_class *class_sht31;
   class_sht31 = mrbc_define_class(0, "SHT31", mrbc_class_object);
-  mrbc_define_method(0, class_sht31, "begin", class_sht31_begin);
+  mrbc_define_method(0, class_sht31, "initialize", class_sht31_init);
   mrbc_define_method(0, class_sht31, "get_temperature", class_sht31_get_temperature);
   mrbc_define_method(0, class_sht31, "get_humidity", class_sht31_get_humidity);
 }
