@@ -27,6 +27,7 @@ void mrbc_define_wio_methods(void)
   define_serial_uart_class();
   define_mqtt_client_class();
   define_string_ext_class();
+  define_bmp280_class();
 
   // mrblib以下のrubyソースから生成したバイトコードを読み込む.
   // src/hal/wio_mrb_lib.c

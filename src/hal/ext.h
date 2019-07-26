@@ -19,5 +19,6 @@ void define_arduino_class(void);
 void define_serial_uart_class(void);
 void define_mqtt_client_class(void);
 void define_string_ext_class(void);
+void define_bmp280_class(void);
 
 #endif

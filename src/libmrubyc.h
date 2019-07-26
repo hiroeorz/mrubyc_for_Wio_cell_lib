@@ -19,6 +19,8 @@
 #endif
 
 #include <PubSubClient.h>		// https://github.com/SeeedJP/pubsubclient
+#include <Wire.h>
+#include <Seeed_BMP280.h>
 #include "mrubyc.h"
 #include "libmrubyc_config.h"
 

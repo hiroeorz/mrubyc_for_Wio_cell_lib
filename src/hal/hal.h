@@ -89,6 +89,10 @@ void hal_init_serial_usb(unsigned int speed);
 void hal_init_serial_uart(void);
 void* hal_get_serial_uart_obj(void);
 
+void hal_init_bmp280(void);
+void* hal_get_bmp280_obj(void);
+int hal_bmp280_is_enable(void);
+
 #ifdef __cplusplus
 }
 #endif
