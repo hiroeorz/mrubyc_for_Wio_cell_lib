@@ -20,9 +20,12 @@
 
 #include <PubSubClient.h>		// https://github.com/SeeedJP/pubsubclient
 #include <Wire.h>
-#include <Seeed_BMP280.h>
 #include "mrubyc.h"
 #include "libmrubyc_config.h"
+
+// Sensor libraries
+#include <Seeed_BMP280.h>
+#include <SHT31.h>
 
 void mrbc_define_wio_methods(void);
 WioCellular* mrbc_get_wio3g_obj(void);

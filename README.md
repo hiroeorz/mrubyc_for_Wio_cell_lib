@@ -16,9 +16,29 @@ mruby/cでコードを書いたLED制御サンプル（クリックで再生）�
 2. `Wio 3G` `Wio LTE M1/NB1` の場合は、 `Wio cell lib` で検索し、 `Wio cell lib for Arduino` の最新版をインストールします。
 2. `Wio LTE` の場合は、 `Wio LTE` で検索し、 `Wio LTE for Arduino` の最新版をインストールします。
 
-## Arduino Client for MQTT のインストール
+以下の3つのライブラリをインストールします。いずれもArduinoIDEからインストール可能ですが、IDEから入れるとコンパイルエラーが発生するためgithubからmasterブランチをcloneしてください.
+
+### Arduino Client for MQTT のインストール
 
 1. [SeeedJP/pubsubclient](https://github.com/SeeedJP/pubsubclient)のREADMEに従い、 `Arduino Client for MQTT` をインストールします。
+
+### Grove_SHT31_Temp_Humi_Sensor のインストール
+
+[Seeed-Studio/Grove_SHT31_Temp_Humi_Sensor](https://github.com/Seeed-Studio/Grove_SHT31_Temp_Humi_Sensor)をインストールします.
+
+```
+$ cd ~/Documents/Arduino/libraries/
+# git clone https://github.com/Seeed-Studio/Grove_SHT31_Temp_Humi_Sensor.git
+```
+
+### Grove_BMP280 のインストール
+
+[Seeed-Studio/Grove_BMP280](https://github.com/Seeed-Studio/Grove_BMP280)をインストールします.
+
+```
+$ cd ~/Documents/Arduino/libraries/
+# git clone git@github.com:Seeed-Studio/Grove_BMP280.git
+```
 
 ## Install
 

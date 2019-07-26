@@ -76,7 +76,7 @@ void define_bmp280_class()
   mrb_class *class_bmp280;
   class_bmp280 = mrbc_define_class(0, "BMP280", mrbc_class_object);
 
-  mrbc_define_method(0, class_bmp280, "init", class_bmp280_init);
+  mrbc_define_method(0, class_bmp280, "initialize", class_bmp280_init);
   mrbc_define_method(0, class_bmp280, "enable?", class_bmp280_is_enable);
   mrbc_define_method(0, class_bmp280, "get_temperature", class_bmp280_get_temperature);
   mrbc_define_method(0, class_bmp280, "get_pressure", class_bmp280_get_pressure);

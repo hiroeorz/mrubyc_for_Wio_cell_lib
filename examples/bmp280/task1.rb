@@ -4,7 +4,6 @@ wio = Wio.new
 wio.power_supply_grove(true)
 
 bmp280 = BMP280.new
-bmp280.init
 puts "bmp280 is enable? -> #{bmp280.enable?}"
 
 while true  

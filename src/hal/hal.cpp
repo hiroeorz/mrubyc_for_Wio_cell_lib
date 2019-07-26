@@ -16,8 +16,11 @@ static WioCellularClient *WioClient = NULL;
 #endif
 
 static PubSubClient *MqttClient = NULL;
+
 static BMP280 *Bmp280 = NULL;
 static int Bmp280Enable = 0;
+
+static SHT31 *Sht31 = NULL;
 
 extern "C" void hal_init_modem(void)
 {
@@ -52,6 +55,10 @@ extern "C" void hal_delay(unsigned long t)
   delay(t);
 }
 
+/****************************************************
+ * BMP280
+ ****************************************************/
+
 extern "C" void hal_init_bmp280(void)
 {
   if (Bmp280 != NULL) return;
@@ -68,4 +75,21 @@ extern "C" void* hal_get_bmp280_obj(void)
 extern "C" int hal_bmp280_is_enable(void)
 {
   return Bmp280Enable;
+}
+
+/****************************************************
+ * SHT31
+ ****************************************************/
+
+extern "C" void hal_init_sht31(void)
+{
+  if (Sht31 != NULL) return;
+
+  Sht31 = new SHT31();
+  Sht31->begin();
+}
+
+extern "C" void* hal_get_sht31_obj(void)
+{
+  return (void*)Sht31;
 }
