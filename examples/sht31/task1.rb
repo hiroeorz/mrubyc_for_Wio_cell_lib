@@ -8,6 +8,7 @@ sht31 = SHT31.new
 while true  
   tmp = sht31.get_temperature
   hum = sht31.get_humidity
+
   puts "tmperature:#{tmp}C humidity:#{hum}"
   sleep 1
 end

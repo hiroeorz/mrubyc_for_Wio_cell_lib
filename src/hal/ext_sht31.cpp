@@ -28,7 +28,12 @@ static void class_sht31_get_temperature(mrb_vm *vm, mrb_value *v, int argc)
   }
 
   float temp = sht31->getTemperature();
-  SET_FLOAT_RETURN(temp);
+
+  if (isnan(temp)) {
+    SET_NIL_RETURN();
+  } else {
+    SET_FLOAT_RETURN(temp);
+  }
 }
 
 static void class_sht31_get_humidity(mrb_vm *vm, mrb_value *v, int argc)
@@ -40,7 +45,12 @@ static void class_sht31_get_humidity(mrb_vm *vm, mrb_value *v, int argc)
   }
 
   float humidity = sht31->getHumidity();
-  SET_FLOAT_RETURN(humidity);
+
+  if (isnan(humidity)) {
+    SET_NIL_RETURN();
+  } else {
+    SET_FLOAT_RETURN(humidity);
+  }
 }
 
 
