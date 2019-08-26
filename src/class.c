@@ -35,6 +35,8 @@
 #include "c_string.h"
 #include "c_range.h"
 
+
+
 //================================================================
 /*! Check the class is the class of object.
 
@@ -332,10 +334,6 @@ void mrbc_funcall(struct VM *vm, const char *name, mrbc_value *v, int argc)
 {
   mrbc_sym sym_id = str_to_symid(name);
   mrbc_proc *m = find_method(vm, &v[0], sym_id);
-
-  if ( m==0) {
-    console_printf("ERROR: no method.");
-  }
 
   if( m==0 ) return;   // no method
 
@@ -722,7 +720,15 @@ static void c_object_class(struct VM *vm, mrbc_value v[], int argc)
 // Object.new
 static void c_object_new(struct VM *vm, mrbc_value v[], int argc)
 {
-  char syms[] = "______initialize";
+  mrbc_value new_obj = mrbc_instance_new(vm, v->cls, 0);
+
+  char syms[]="______initialize";
+  mrbc_sym sym_id = str_to_symid(&syms[6]);
+  mrbc_proc *m = find_method(vm, &v[0], sym_id);
+  if( m==0 ){
+    SET_RETURN(new_obj);
+    return;
+  }
   uint32_to_bin( 1,(uint8_t*)&syms[0]);
   uint16_to_bin(10,(uint8_t*)&syms[4]);
 
@@ -743,7 +749,6 @@ static void c_object_new(struct VM *vm, mrbc_value v[], int argc)
   };
 
   mrbc_class *cls = v->cls;
-  mrbc_value new_obj = mrbc_instance_new(vm, v->cls, 0);
 
   mrbc_release(&v[0]);
   v[0] = new_obj;

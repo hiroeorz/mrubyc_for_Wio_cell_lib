@@ -30,6 +30,10 @@
 #define MAX_SYMBOLS_COUNT 600
 #endif
 
+// memory management
+//  MRBC_ALLOC_16BIT or MRBC_ALLOC_24BIT
+#define MRBC_ALLOC_16BIT
+
 
 /* Configure environment
    0: NOT USE
