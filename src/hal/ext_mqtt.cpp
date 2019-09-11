@@ -23,7 +23,6 @@ static PubSubClient *mqtt_client = NULL;
 static VM *callback_vm = NULL;
 static mrbc_value *callback_receiver = NULL;
 static const char recive_data_iv_name[] = "_received_data";
-static const char recive_data_iv_mutex_name[] = "_received_data_mutex";
 
 void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
 {
