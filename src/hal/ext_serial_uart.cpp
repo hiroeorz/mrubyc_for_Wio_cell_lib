@@ -19,12 +19,6 @@
 #define GROVE_UART_TX_PIN   WIO_UART_D22			// out
 #define GROVE_UART_RX_PIN   WIO_UART_D23			// in
 
-#if defined ARDUINO_ARCH_STM32
-HardwareSerial& SerialUART = Serial;
-#else
-HardwareSerial SerialUART(GROVE_UART_CORE, GROVE_UART_TX_PIN, GROVE_UART_RX_PIN);
-#endif
-
 #endif
 
 // parity (0:なし, 1:奇数, 2:偶数)
