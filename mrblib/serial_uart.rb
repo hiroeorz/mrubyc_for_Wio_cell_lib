@@ -12,14 +12,19 @@ class SerialUART
 
   def wait_ready(wait_str_len = 1, max_wait_count = 10)
     count = 0
+    result = true
 
     while available() < wait_str_len
-      return false if count >= max_wait_count
+      if count >= max_wait_count
+        result = false
+        break
+      end
+
       count += 1
       sleep WAIT_READY_SLEEP_SEC
     end
 
-    return true
+    return result
   end
 
 end
