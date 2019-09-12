@@ -40,8 +40,11 @@ void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
   }
   payload_str[len] = '\0';
 
-  char topic_str[sizeof(topic)];
-  strcpy(topic_str, topic);
+  char topic_str[sizeof(topic) + 1];
+  for (int i = 0; i < (int)sizeof(topic); i++){
+    topic_str[i] = (char)topic[i];
+  }
+  topic_str[sizeof(topic)] = '\0';
 
   mrbc_value topic_key = mrbc_string_new_cstr(callback_vm, "topic");
   mrbc_value payload_key = mrbc_string_new_cstr(callback_vm, "payload");
@@ -52,9 +55,9 @@ void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
   mrbc_hash_set(&obj, &topic_key, &topic_obj);
   mrbc_hash_set(&obj, &payload_key, &payload_obj);
 
-  mrbc_symbol_new(callback_vm, recive_data_iv_name);
+  mrbc_release(&receive_data);
   mrbc_instance_setiv(callback_receiver, sym_id, &obj);
-  mrbc_dec_ref_counter(&obj);
+  mrbc_release(&obj);
 }
 
 static void class_mqtt_client_connect(mrb_vm *vm, mrbc_value *v, int argc)
@@ -105,6 +108,7 @@ static void class_mqtt_client_publish(mrb_vm *vm, mrb_value *v, int argc)
   uint8_t *payload = GET_STRING_ARG(2);
 
   bool success = mqtt_client->publish((const char *)topic, (const char *)payload);
+
   if (success) {
     SET_TRUE_RETURN();
   } else {
