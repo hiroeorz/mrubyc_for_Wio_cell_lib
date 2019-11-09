@@ -21,6 +21,7 @@ static BMP280 *Bmp280 = NULL;
 static int Bmp280Enable = 0;
 
 static SHT31 *Sht31 = NULL;
+static SHT35 *Sht35 = NULL;
 
 extern "C" void hal_init_modem(void)
 {
@@ -92,4 +93,34 @@ extern "C" void hal_init_sht31(void)
 extern "C" void* hal_get_sht31_obj(void)
 {
   return (void*)Sht31;
+}
+
+/****************************************************
+ * SHT35
+ ****************************************************/
+
+/*SAMD core*/
+#ifdef ARDUINO_SAMD_VARIANT_COMPLIANCE
+  #define SDAPIN  20
+  #define SCLPIN  21
+  #define RSTPIN  7
+  #define SERIAL SerialUSB
+#else
+  #define SDAPIN  A4
+  #define SCLPIN  A5
+  #define RSTPIN  2
+  #define SERIAL Serial
+#endif
+
+extern "C" void hal_init_sht35(void)
+{
+  if (Sht35 != NULL) return;
+
+  Sht35 = new SHT35(24);
+  Sht35->init();
+}
+
+extern "C" void* hal_get_sht35_obj(void)
+{
+  return (void*)Sht35;
 }

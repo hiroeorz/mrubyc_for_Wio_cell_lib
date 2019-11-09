@@ -21,16 +21,13 @@ static WioCellularClient *wio_client = NULL;
 
 static PubSubClient *mqtt_client = NULL;
 static VM *callback_vm = NULL;
-static mrbc_value *callback_receiver = NULL;
-static const char recive_data_iv_name[] = "_received_data";
-static const char recive_data_iv_mutex_name[] = "_received_data_mutex";
+
+static char received_topic[128];
+static char received_payload[1024];
 
 void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
 {
-  mrbc_sym sym_id = str_to_symid(recive_data_iv_name);
-  mrbc_value receive_data = mrbc_instance_getiv(callback_receiver, sym_id);
-
-  if (receive_data.tt != MRBC_TT_NIL) {
+  if (received_topic[0] != '\0') {
     return; // return if before data is exist.
   }
 
@@ -46,21 +43,36 @@ void mqtt_subscribe_callback(char* topic, byte* payload, unsigned int len)
   }
   topic_str[sizeof(topic)] = '\0';
 
-  mrbc_value topic_key = mrbc_string_new_cstr(callback_vm, "topic");
-  mrbc_value payload_key = mrbc_string_new_cstr(callback_vm, "payload");
-  mrbc_value topic_obj = mrbc_string_new_cstr(callback_vm, (const char *)topic_str);
-  mrbc_value payload_obj = mrbc_string_new_cstr(callback_vm, (const char *)payload_str);
-
-  mrbc_value obj = mrbc_hash_new(callback_vm, 2);
-  mrbc_hash_set(&obj, &topic_key, &topic_obj);
-  mrbc_hash_set(&obj, &payload_key, &payload_obj);
-
-  mrbc_release(&receive_data);
-  mrbc_instance_setiv(callback_receiver, sym_id, &obj);
-  mrbc_release(&obj);
+  strcpy(received_topic, topic_str);
+  strcpy(received_payload, payload_str);
 }
 
-static void class_mqtt_client_connect(mrb_vm *vm, mrbc_value *v, int argc)
+static void class_mqtt_get_subscribed_data(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_FALSE_RETURN();
+    return;
+  }
+
+  if (received_topic[0] != '\0' && received_payload[0] != '\0') {
+    mrbc_value topic_key = mrbc_string_new_cstr(callback_vm, "topic");
+    mrbc_value payload_key = mrbc_string_new_cstr(callback_vm, "payload");
+    mrbc_value topic_obj = mrbc_string_new_cstr(callback_vm, (const char *)received_topic);
+    mrbc_value payload_obj = mrbc_string_new_cstr(callback_vm, (const char *)received_payload);
+    mrbc_value obj = mrbc_hash_new(callback_vm, 2);
+
+    mrbc_hash_set(&obj, &topic_key, &topic_obj);
+    mrbc_hash_set(&obj, &payload_key, &payload_obj);
+    SET_RETURN(obj);
+    received_topic[0] = '\0';
+    received_payload[0] = '\0';
+  } else {
+    SET_NIL_RETURN();
+  }
+}
+
+static void class_mqtt_client_connect(mrb_vm *vm, mrb_value *v, int argc)
 {
   uint8_t *host = GET_STRING_ARG(1);
 
@@ -77,7 +89,6 @@ static void class_mqtt_client_connect(mrb_vm *vm, mrbc_value *v, int argc)
 
   if (success) {
     callback_vm = vm;
-    callback_receiver = &v[1];
     SET_TRUE_RETURN();
   } else {
     SET_FALSE_RETURN();
@@ -208,6 +219,7 @@ void define_mqtt_client_class()
   static mrb_class *class_mqtt_client;
   class_mqtt_client = mrbc_define_class(0, "MQTTClient", mrbc_class_object);
 
+  mrbc_define_method(0, class_mqtt_client, "get_subscribed_data", class_mqtt_get_subscribed_data);
   mrbc_define_method(0, class_mqtt_client, "connect", class_mqtt_client_connect);
   mrbc_define_method(0, class_mqtt_client, "disconnect", class_mqtt_client_disconnect);
   mrbc_define_method(0, class_mqtt_client, "publish", class_mqtt_client_publish);

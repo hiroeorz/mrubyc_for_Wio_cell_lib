@@ -96,6 +96,9 @@ int hal_bmp280_is_enable(void);
 void hal_init_sht31(void);
 void* hal_get_sht31_obj(void);
 
+void hal_init_sht35(void);
+void* hal_get_sht35_obj(void);
+
 #ifdef __cplusplus
 }
 #endif

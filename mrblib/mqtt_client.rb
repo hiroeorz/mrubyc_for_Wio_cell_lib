@@ -8,25 +8,6 @@
 
 class MQTTClient
 
-  def initialize
-    @_received_data = nil
-  end
-
-  def received_data
-    @_received_data
-  end
-
-  def received_data=(val)
-    @_received_data = val
-  end
-
-  def get_subscribed_data
-    data = @_received_data
-    return nil if @_received_data.nil?
-    @_received_data = nil
-    return data
-  end
-
   def self.open(host, port, connect_id, &block)
     client = MQTTClient.new
     success = client.connect(host, port, connect_id)
