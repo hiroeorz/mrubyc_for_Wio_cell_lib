@@ -8,10 +8,23 @@
 
 class SerialUART
 
-  def wait_ready(wait_str_len = 1)
+  WAIT_READY_SLEEP_SEC = 0.1
+
+  def wait_ready(wait_str_len = 1, max_wait_count = 10)
+    count = 0
+    result = true
+
     while available() < wait_str_len
-      sleep 0.1;
+      if count >= max_wait_count
+        result = false
+        break
+      end
+
+      count += 1
+      sleep WAIT_READY_SLEEP_SEC
     end
+
+    return result
   end
 
 end

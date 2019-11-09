@@ -26,6 +26,7 @@
 // Sensor libraries
 #include <Seeed_BMP280.h>
 #include <SHT31.h>
+#include <Seeed_SHT35.h>
 
 void mrbc_define_wio_methods(void);
 WioCellular* mrbc_get_wio3g_obj(void);

@@ -21,5 +21,6 @@ void define_mqtt_client_class(void);
 void define_string_ext_class(void);
 void define_bmp280_class(void);
 void define_sht31_class(void);
+void define_sht35_class(void);
 
 #endif
