@@ -65,7 +65,6 @@ static void class_sht35_get_temp_and_humi(mrb_vm *vm, mrb_value *v, int argc)
 
   float temp;
   float hum;
-  mrbc_value obj = mrbc_hash_new(vm, 2);
 
   if (NO_ERROR != sht35->read_meas_data_single_shot(HIGH_REP_WITH_STRCH, &temp, &hum)) {
     SET_NIL_RETURN();
@@ -75,6 +74,8 @@ static void class_sht35_get_temp_and_humi(mrb_vm *vm, mrb_value *v, int argc)
     mrbc_value hum_value = mrb_float_value((mrbc_float)hum);
     mrbc_array_set(&array, 0, &temp_value);
     mrbc_array_set(&array, 1, &hum_value);
+    mrbc_release(&temp_value);
+    mrbc_release(&hum_value);
     SET_RETURN(array);
   }
 }
