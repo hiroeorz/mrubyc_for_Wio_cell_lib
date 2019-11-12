@@ -17,11 +17,15 @@ static WioCellularClient *WioClient = NULL;
 
 static PubSubClient *MqttClient = NULL;
 
-static BMP280 *Bmp280 = NULL;
-static int Bmp280Enable = 0;
+static BMP280 *Bmp280_76 = NULL;
+static BMP280 *Bmp280_77 = NULL;
+static int Bmp280Enable_76 = 0;
+static int Bmp280Enable_77 = 0;
 
 static SHT31 *Sht31 = NULL;
-static SHT35 *Sht35 = NULL;
+
+static SHT35 *Sht35_44 = NULL;
+static SHT35 *Sht35_45 = NULL;
 
 extern "C" void hal_init_modem(void)
 {
@@ -60,22 +64,38 @@ extern "C" void hal_delay(unsigned long t)
  * BMP280
  ****************************************************/
 
-extern "C" void hal_init_bmp280(void)
+extern "C" void hal_init_bmp280(unsigned char iic_addr)
 {
-  if (Bmp280 != NULL) return;
+  if (0x76 == iic_addr && Bmp280_76 != NULL) return;
+  if (0x77 == iic_addr && Bmp280_77 != NULL) return;
 
-  Bmp280 = new BMP280();
-  if (Bmp280->init()) { Bmp280Enable = 1; }
+  if (0x76 == iic_addr) {
+    Bmp280_76 = new BMP280();
+    if (Bmp280_76->init()) { Bmp280Enable_76 = 1; }
+  }
+
+  if (0x77 == iic_addr) {
+    Bmp280_77 = new BMP280();
+    if (Bmp280_77->init()) { Bmp280Enable_77 = 1; }
+  }
 }
 
-extern "C" void* hal_get_bmp280_obj(void)
+extern "C" void* hal_get_bmp280_obj(unsigned char iic_addr)
 {
-  return (void*)Bmp280;
+  if (0x76 == iic_addr) {
+    return (void*)Bmp280_76;
+  }
+
+  return (void*)Bmp280_77;
 }
 
-extern "C" int hal_bmp280_is_enable(void)
+extern "C" int hal_bmp280_is_enable(unsigned char iic_addr)
 {
-  return Bmp280Enable;
+  if (0x76 == iic_addr) {
+    return Bmp280Enable_76;
+  }
+
+  return Bmp280Enable_77;
 }
 
 /****************************************************
@@ -99,28 +119,30 @@ extern "C" void* hal_get_sht31_obj(void)
  * SHT35
  ****************************************************/
 
-/*SAMD core*/
-#ifdef ARDUINO_SAMD_VARIANT_COMPLIANCE
-  #define SDAPIN  20
-  #define SCLPIN  21
-  #define RSTPIN  7
-  #define SERIAL SerialUSB
-#else
-  #define SDAPIN  A4
-  #define SCLPIN  A5
-  #define RSTPIN  2
-  #define SERIAL Serial
-#endif
+#define SHT35_SCLPIN  24
 
-extern "C" void hal_init_sht35(void)
+// iic_addr 0x45(default) or 0x44
+extern "C" void hal_init_sht35(unsigned char iic_addr)
 {
-  if (Sht35 != NULL) return;
+  if (iic_addr == 0x44 && Sht35_44 != NULL) return;
+  if (iic_addr == 0x45 && Sht35_45 != NULL) return;
 
-  Sht35 = new SHT35(24);
-  Sht35->init();
+  if (0x44 == iic_addr) {
+    Sht35_44 = new SHT35(SHT35_SCLPIN, iic_addr);
+    Sht35_44->init();
+  }
+
+  if (0x45 == iic_addr) {
+    Sht35_45 = new SHT35(SHT35_SCLPIN, iic_addr);
+    Sht35_45->init();
+  }
 }
 
-extern "C" void* hal_get_sht35_obj(void)
+extern "C" void* hal_get_sht35_obj(unsigned char iic_addr)
 {
-  return (void*)Sht35;
+  if (0x44 == iic_addr) {
+    return (void*)Sht35_44;
+  }
+
+  return (void*)Sht35_45;
 }

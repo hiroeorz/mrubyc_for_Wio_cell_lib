@@ -10,23 +10,38 @@
 #include "libmrubyc.h"
 #include "ext.h"
 
-static SHT35* sht35 = NULL;
-
 static void class_sht35_init(mrb_vm *vm, mrb_value *v, int argc)
 {
-  hal_init_sht35();
-  sht35 = (SHT35*)hal_get_sht35_obj();
-}
+  unsigned char iic_addr = 0x45; //default (selectable 0x44, 0x45)
 
-
-static void class_sht35_get_temperature(mrb_vm *vm, mrb_value *v, int argc)
-{
-  if (argc != 0) {
+  if (argc == 0) {
+  } else if (argc == 1) {
+    iic_addr = (unsigned char)GET_INT_ARG(1);
+  } else {
     DEBUG_PRINTLN("invalid argc");
     SET_NIL_RETURN();
     return;
   }
 
+  if (iic_addr != 0x44 && iic_addr != 0x45) {
+    DEBUG_PRINTLN("invalid argc. SHT35 IIC_ADDR = 0x44 or 0x45.");
+    SET_NIL_RETURN();
+  }
+
+  hal_init_sht35(iic_addr);
+}
+
+
+static void class_sht35_get_temperature_with_addr(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINTLN("invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
+  static SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
   float temp;
   float hum;
 
@@ -37,14 +52,16 @@ static void class_sht35_get_temperature(mrb_vm *vm, mrb_value *v, int argc)
   }
 }
 
-static void class_sht35_get_humidity(mrb_vm *vm, mrb_value *v, int argc)
+static void class_sht35_get_humidity_with_addr(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 0) {
+  if (argc != 1) {
     DEBUG_PRINTLN("invalid argc");
     SET_NIL_RETURN();
     return;
   }
 
+  unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
+  static SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
   float temp;
   float hum;
 
@@ -55,14 +72,16 @@ static void class_sht35_get_humidity(mrb_vm *vm, mrb_value *v, int argc)
   }
 }
 
-static void class_sht35_get_temp_and_humi(mrb_vm *vm, mrb_value *v, int argc)
+static void class_sht35_get_temp_and_humi_with_addr(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 0) {
+  if (argc != 1) {
     DEBUG_PRINTLN("invalid argc");
     SET_NIL_RETURN();
     return;
   }
 
+  unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
+  static SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
   float temp;
   float hum;
 
@@ -83,11 +102,11 @@ static void class_sht35_get_temp_and_humi(mrb_vm *vm, mrb_value *v, int argc)
 
 void define_sht35_class()
 {
-  mrb_class *class_sht35;
+  static mrb_class *class_sht35;
   class_sht35 = mrbc_define_class(0, "SHT35", mrbc_class_object);
-  mrbc_define_method(0, class_sht35, "initialize", class_sht35_init);
-  mrbc_define_method(0, class_sht35, "get_temperature", class_sht35_get_temperature);
-  mrbc_define_method(0, class_sht35, "get_humidity", class_sht35_get_humidity);
-  mrbc_define_method(0, class_sht35, "get_temp_and_humi", class_sht35_get_temp_and_humi);
+  mrbc_define_method(0, class_sht35, "init", class_sht35_init);
+  mrbc_define_method(0, class_sht35, "get_temperature_with_addr", class_sht35_get_temperature_with_addr);
+  mrbc_define_method(0, class_sht35, "get_humidity_with_addr", class_sht35_get_humidity_with_addr);
+  mrbc_define_method(0, class_sht35, "get_temp_and_humi_with_addr", class_sht35_get_temp_and_humi_with_addr);
 }
 

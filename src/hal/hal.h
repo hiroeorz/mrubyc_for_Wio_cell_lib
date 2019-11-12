@@ -89,15 +89,15 @@ void hal_init_serial_usb(unsigned int speed);
 void hal_init_serial_uart(void);
 void* hal_get_serial_uart_obj(void);
 
-void hal_init_bmp280(void);
-void* hal_get_bmp280_obj(void);
-int hal_bmp280_is_enable(void);
+void hal_init_bmp280(unsigned char iic_addr);
+void* hal_get_bmp280_obj(unsigned char iic_addr);
+int hal_bmp280_is_enable(unsigned char iic_addr);
 
 void hal_init_sht31(void);
 void* hal_get_sht31_obj(void);
 
-void hal_init_sht35(void);
-void* hal_get_sht35_obj(void);
+void hal_init_sht35(unsigned char iic_addr);
+void* hal_get_sht35_obj(unsigned char iic_addr);
 
 #ifdef __cplusplus
 }
