@@ -41,7 +41,7 @@ static void class_sht35_get_temperature_with_addr(mrb_vm *vm, mrb_value *v, int 
   }
 
   unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
-  static SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
+  SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
   float temp;
   float hum;
 
@@ -61,7 +61,7 @@ static void class_sht35_get_humidity_with_addr(mrb_vm *vm, mrb_value *v, int arg
   }
 
   unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
-  static SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
+  SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
   float temp;
   float hum;
 
@@ -81,7 +81,7 @@ static void class_sht35_get_temp_and_humi_with_addr(mrb_vm *vm, mrb_value *v, in
   }
 
   unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
-  static SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
+  SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
   float temp;
   float hum;
 

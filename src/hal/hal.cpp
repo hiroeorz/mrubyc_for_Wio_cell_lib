@@ -136,6 +136,8 @@ extern "C" void hal_init_sht35(unsigned char iic_addr)
     Sht35_45 = new SHT35(SHT35_SCLPIN, iic_addr);
     Sht35_45->init();
   }
+
+  DEBUG_PRINTLN("!!! SHT35: invalid iic_addr");
 }
 
 extern "C" void* hal_get_sht35_obj(unsigned char iic_addr)
@@ -144,5 +146,10 @@ extern "C" void* hal_get_sht35_obj(unsigned char iic_addr)
     return (void*)Sht35_44;
   }
 
-  return (void*)Sht35_45;
+  if (0x45 == iic_addr) {
+    return (void*)Sht35_45;
+  }
+
+  DEBUG_PRINTLN("!!! SHT35: invalid iic_addr");
+  return NULL;
 }

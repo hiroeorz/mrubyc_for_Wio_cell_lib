@@ -10,8 +10,6 @@
 #include "libmrubyc.h"
 #include "ext.h"
 
-//static BMP280* bmp280 = NULL;
-
 static void class_bmp280_init(mrb_vm *vm, mrb_value *v, int argc)
 {
   unsigned char iic_addr = 0x77; //default (selectable 0x76, 0x77)
