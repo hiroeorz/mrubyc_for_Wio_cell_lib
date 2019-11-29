@@ -31,6 +31,15 @@ $ cd ~/Documents/Arduino/libraries/
 # git clone https://github.com/Seeed-Studio/Grove_SHT31_Temp_Humi_Sensor.git
 ```
 
+### Seeed_SHT35 のインストール
+
+[Seeed-Studio/Seeed_SHT35](https://github.com/Seeed-Studio/Seeed_SHT35)をインストールします.
+
+```
+$ cd ~/Documents/Arduino/libraries/
+# git clone https://github.com/Seeed-Studio/Seeed_SHT35.git
+```
+
 ### Grove_BMP280 のインストール
 
 [Seeed-Studio/Grove_BMP280](https://github.com/Seeed-Studio/Grove_BMP280)をインストールします.
