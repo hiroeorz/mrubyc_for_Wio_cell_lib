@@ -68,6 +68,7 @@ $ cp -r mrubyc_for_Wio_cell_lib  ~/Documents/Arduino/libraries/
 
 Groveセンサー
 * [SHT31クラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/SHT31.md)
+* [SHT35クラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/SHT35.md)
 * [BMP280クラス](https://github.com/hiroeorz/mrubyc_for_Wio_cell_lib/blob/master/doc/BMP280.md)
 
 ## Examples
