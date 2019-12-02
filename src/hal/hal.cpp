@@ -91,7 +91,7 @@ extern "C" void* hal_get_bmp280_obj(unsigned char iic_addr)
   DEBUG_PRINTLN("!!! BMP280: invalid iic_addr");
 
   char s[256] = {'\0'};
-  sprintf(s, "iic_addr: %02x", (const char*)&iic_addr);
+  sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);
   DEBUG_PRINTLN(s);
 }
 
@@ -105,7 +105,7 @@ extern "C" int hal_bmp280_is_enable(unsigned char iic_addr)
   DEBUG_PRINTLN("! BMP280: invalid iic_addr");
 
   char s[256] = {'\0'};
-  sprintf(s, "iic_addr: %02x", (const char*)&iic_addr);
+  sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);
   DEBUG_PRINTLN(s);
 }
 
@@ -141,17 +141,19 @@ extern "C" void hal_init_sht35(unsigned char iic_addr)
   if (0x44 == iic_addr) {
     Sht35_44 = new SHT35(SHT35_SCLPIN, iic_addr);
     Sht35_44->init();
+    return;
   }
 
   if (0x45 == iic_addr) {
     Sht35_45 = new SHT35(SHT35_SCLPIN, iic_addr);
     Sht35_45->init();
+    return;
   }
 
   DEBUG_PRINTLN("!!! SHT35: invalid iic_addr");
 
   char s[256] = {'\0'};
-  sprintf(s, "iic_addr: %02x", (const char*)&iic_addr);
+  sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);
   DEBUG_PRINTLN(s);
 }
 
@@ -168,7 +170,7 @@ extern "C" void* hal_get_sht35_obj(unsigned char iic_addr)
   DEBUG_PRINTLN("! SHT35: invalid iic_addr");
 
   char s[256] = {'\0'};
-  sprintf(s, "iic_addr: %02x", (const char*)&iic_addr);
+  sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);
   DEBUG_PRINTLN(s);
   return NULL;
 }
