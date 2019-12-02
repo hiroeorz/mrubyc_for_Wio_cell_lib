@@ -18,12 +18,10 @@ SHT35はIICのチャンネルが `0x44` と `0x45(default)` の２つありま�
 sht35 = SHT35.new(0x44)              # 初期化
 ```
 
-
-
 ### get_temperature
 
 ```ruby
-tmp = sht31.get_temperature
+tmp = sht35.get_temperature
 ```
 
 #### 説明
@@ -34,7 +32,7 @@ tmp = sht31.get_temperature
 ### get_humidity
 
 ```ruby
-tmp = sht31.get_humidity
+tmp = sht35.get_humidity
 ```
 
 #### 説明
@@ -45,7 +43,7 @@ tmp = sht31.get_humidity
 ### get_temp_and_humi
 
 ```ruby
-tmp,humi = sht31.get_temp_and_humi
+tmp,humi = sht35.get_temp_and_humi
 ```
 
 #### 説明
