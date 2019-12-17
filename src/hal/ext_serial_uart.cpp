@@ -71,11 +71,15 @@ static void class_serial_uart_read(mrb_vm *vm, mrb_value *v, int argc)
   }
 
   char c = '\0';
-  c = SerialUART.read();
-  const char str[] = {c, '\0'};
   
-  mrbc_value str_obj = mrbc_string_new_cstr(vm, str);
-  SET_RETURN(str_obj);
+  if (SerialUART.available() > 0) {
+    c = SerialUART.read();
+    const char str[] = {c, '\0'};
+    mrbc_value str_obj = mrbc_string_new_cstr(vm, str);
+    SET_RETURN(str_obj);
+  } else {
+    SET_NIL_RETURN();
+  }
 }
 
 static void class_serial_uart_available(mrb_vm *vm, mrb_value *v, int argc)
@@ -129,14 +133,14 @@ static void class_serial_uart_gets(mrb_vm *vm, mrb_value *v, int argc)
   char recv[32];  
 
   while(c != eol) {
-    c = SerialUART.read();
-    recv[i] = c;
-    i++;
-  }
-
-  if (i == 0) {
-    SET_NIL_RETURN();
-    return;
+    if (SerialUART.available() > 0) {
+      c = SerialUART.read();
+      recv[i] = c;
+      i++;
+    } else {
+      SET_NIL_RETURN();
+      return;
+    }
   }
 
   recv[i] = '\0';

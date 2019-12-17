@@ -74,7 +74,12 @@ static void class_bmp280_get_pressure_with_addr(mrb_vm *vm, mrb_value *v, int ar
   unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
   BMP280* bmp280 = (BMP280*)hal_get_bmp280_obj(iic_addr);
   float press = bmp280->getPressure();
-  SET_FLOAT_RETURN(press);
+
+  if (press == 0) {
+    SET_NIL_RETURN();
+  } else {
+    SET_FLOAT_RETURN(press);
+  }
 }
 
 static void class_bmp280_get_altitude_with_addr(mrb_vm *vm, mrb_value *v, int argc)
