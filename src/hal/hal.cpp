@@ -133,21 +133,25 @@ extern "C" void* hal_get_sht31_obj(void)
 #define SHT35_SCLPIN  24
 
 // iic_addr 0x45(default) or 0x44
-extern "C" void hal_init_sht35(unsigned char iic_addr)
+extern "C" int hal_init_sht35(unsigned char iic_addr)
 {
-  if (iic_addr == 0x44 && Sht35_44 != NULL) return;
-  if (iic_addr == 0x45 && Sht35_45 != NULL) return;
+  if (iic_addr == 0x44 && Sht35_44 != NULL) return NO_ERROR;
+  if (iic_addr == 0x45 && Sht35_45 != NULL) return NO_ERROR;
+
+  int ret = 0;
 
   if (0x44 == iic_addr) {
     Sht35_44 = new SHT35(SHT35_SCLPIN, iic_addr);
-    Sht35_44->init();
-    return;
+    ret = Sht35_44->init();
+    if (NO_ERROR != ret) { Sht35_44 = NULL; }
+    return ret;
   }
 
   if (0x45 == iic_addr) {
     Sht35_45 = new SHT35(SHT35_SCLPIN, iic_addr);
-    Sht35_45->init();
-    return;
+    ret = Sht35_45->init();
+    if (NO_ERROR != ret) { Sht35_45 = NULL; }
+    return ret;
   }
 
   DEBUG_PRINTLN("!!! SHT35: invalid iic_addr");
@@ -155,6 +159,7 @@ extern "C" void hal_init_sht35(unsigned char iic_addr)
   char s[256] = {'\0'};
   sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);
   DEBUG_PRINTLN(s);
+  return ERROR_OTHERS;
 }
 
 extern "C" void* hal_get_sht35_obj(unsigned char iic_addr)

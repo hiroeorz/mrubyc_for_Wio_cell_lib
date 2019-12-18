@@ -96,7 +96,7 @@ int hal_bmp280_is_enable(unsigned char iic_addr);
 void hal_init_sht31(void);
 void* hal_get_sht31_obj(void);
 
-void hal_init_sht35(unsigned char iic_addr);
+int hal_init_sht35(unsigned char iic_addr);
 void* hal_get_sht35_obj(unsigned char iic_addr);
 
 #ifdef __cplusplus

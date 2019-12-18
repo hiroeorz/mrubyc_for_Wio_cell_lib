@@ -28,7 +28,13 @@ static void class_sht35_init(mrb_vm *vm, mrb_value *v, int argc)
     SET_NIL_RETURN();
   }
 
-  hal_init_sht35(iic_addr);
+  int ret = hal_init_sht35(iic_addr);
+
+  if (NO_ERROR == ret) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
 }
 
 
@@ -85,9 +91,13 @@ static void class_sht35_get_temp_and_humi_with_addr(mrb_vm *vm, mrb_value *v, in
   float temp;
   float hum;
 
+  DEBUG_PRINT("SHT35 Getting Data...");
+
   if (NO_ERROR != sht35->read_meas_data_single_shot(HIGH_REP_WITH_STRCH, &temp, &hum)) {
+    DEBUG_PRINT("!!! SHT35 Data Get Error.\n");
     SET_NIL_RETURN();
   } else {
+    DEBUG_PRINT("SHT35 Data Get OK.\n");
     mrbc_value array = mrbc_array_new(vm, 2);
     mrbc_value temp_value = mrb_float_value((mrbc_float)temp);
     mrbc_value hum_value = mrb_float_value((mrbc_float)hum);
