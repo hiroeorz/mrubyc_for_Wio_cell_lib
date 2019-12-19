@@ -73,11 +73,15 @@ static void class_bmp280_get_pressure_with_addr(mrb_vm *vm, mrb_value *v, int ar
 
   unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
   BMP280* bmp280 = (BMP280*)hal_get_bmp280_obj(iic_addr);
+
+  DEBUG_PRINT("BMP280 Getting Data...");
   float press = bmp280->getPressure();
 
   if (press == 0) {
+    DEBUG_PRINT("!!! BMP280 Data Get Error.\n");
     SET_NIL_RETURN();
   } else {
+    DEBUG_PRINT("BMP280 Data Get OK.\n");
     SET_FLOAT_RETURN(press);
   }
 }

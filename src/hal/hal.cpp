@@ -66,8 +66,15 @@ extern "C" void hal_delay(unsigned long t)
 
 extern "C" void hal_init_bmp280(unsigned char iic_addr)
 {
-  if (0x76 == iic_addr && Bmp280_76 != NULL) return;
-  if (0x77 == iic_addr && Bmp280_77 != NULL) return;
+  if (0x76 == iic_addr && Bmp280_76 != NULL) {
+    Bmp280_76->init();
+    return;
+  }
+
+  if (0x77 == iic_addr && Bmp280_77 != NULL) {
+    Bmp280_77->init();
+    return;
+  }
 
   if (0x76 == iic_addr) {
     Bmp280_76 = new BMP280();
@@ -135,8 +142,13 @@ extern "C" void* hal_get_sht31_obj(void)
 // iic_addr 0x45(default) or 0x44
 extern "C" int hal_init_sht35(unsigned char iic_addr)
 {
-  if (iic_addr == 0x44 && Sht35_44 != NULL) return NO_ERROR;
-  if (iic_addr == 0x45 && Sht35_45 != NULL) return NO_ERROR;
+  if (iic_addr == 0x44 && Sht35_44 != NULL) {
+    return Sht35_44->init();
+  }
+
+  if (iic_addr == 0x45 && Sht35_45 != NULL) { 
+    return Sht35_45->init();
+  }
 
   int ret = 0;
 

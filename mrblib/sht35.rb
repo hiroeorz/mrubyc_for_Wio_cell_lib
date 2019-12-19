@@ -2,7 +2,11 @@ class SHT35
 
   def initialize(iic_addr = 0x45)
     @iic_addr = iic_addr
-    @enable = init(iic_addr)
+    init(iic_addr)
+  end
+
+  def enable?
+    !heater_status.nil?
   end
 
   def get_temperature
@@ -17,6 +21,10 @@ class SHT35
     result = get_temp_and_humi_with_addr(@iic_addr)
     return [nil, nil] if result.nil?
     return result
+  end
+
+  def heater_status
+    heater_status_with_addr(@iic_addr)
   end
 
 end

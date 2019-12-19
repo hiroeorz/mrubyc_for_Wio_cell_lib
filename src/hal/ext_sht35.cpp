@@ -7,6 +7,7 @@
 
 */
 
+#include "Wire.h"
 #include "libmrubyc.h"
 #include "ext.h"
 
@@ -92,7 +93,7 @@ static void class_sht35_get_temp_and_humi_with_addr(mrb_vm *vm, mrb_value *v, in
   float hum;
 
   DEBUG_PRINT("SHT35 Getting Data...");
-
+ 
   if (NO_ERROR != sht35->read_meas_data_single_shot(HIGH_REP_WITH_STRCH, &temp, &hum)) {
     DEBUG_PRINT("!!! SHT35 Data Get Error.\n");
     SET_NIL_RETURN();
@@ -109,6 +110,34 @@ static void class_sht35_get_temp_and_humi_with_addr(mrb_vm *vm, mrb_value *v, in
   }
 }
 
+#define HEATER_STATUS_ON  (0x30 << 8 | 0x6d)
+#define HEATER_STATUS_OFF (0x30 << 8 | 0x66)
+
+
+static void class_sht35_heater_status_with_addr(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINTLN("invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
+  SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
+  u16 value;
+
+  if (NO_ERROR != sht35->heaterStatus(&value)) {
+    DEBUG_PRINTLN("SHT35: Cannnot get HeaterStatus");
+    SET_NIL_RETURN();
+  } else {
+    if (HEATER_STATUS_ON == value || HEATER_STATUS_OFF == value) {
+      SET_INT_RETURN(value);
+    } else {
+      DEBUG_PRINTLN("SHT35: Invalid HeaterStatus");
+      SET_NIL_RETURN();
+    }
+  }
+}
 
 void define_sht35_class()
 {
@@ -118,5 +147,6 @@ void define_sht35_class()
   mrbc_define_method(0, class_sht35, "get_temperature_with_addr", class_sht35_get_temperature_with_addr);
   mrbc_define_method(0, class_sht35, "get_humidity_with_addr", class_sht35_get_humidity_with_addr);
   mrbc_define_method(0, class_sht35, "get_temp_and_humi_with_addr", class_sht35_get_temp_and_humi_with_addr);
+  mrbc_define_method(0, class_sht35, "heater_status_with_addr", class_sht35_heater_status_with_addr);
 }
 
