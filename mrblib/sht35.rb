@@ -27,4 +27,21 @@ class SHT35
     heater_status_with_addr(@iic_addr)
   end
 
+  def reset_check
+    reset_check_with_addr(@iic_addr)
+  end
+
+  def soft_reset
+    soft_reset_with_addr(@iic_addr)
+  end
+
+  def change_heater_status(status)
+    status_num = status ? 1 : 0
+    change_heater_status_with_addr(@iic_addr, status_num)
+  end
+
+  def read_reg_status
+    read_reg_status_with_addr(@iic_addr)
+  end
+
 end

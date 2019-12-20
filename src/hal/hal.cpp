@@ -67,23 +67,23 @@ extern "C" void hal_delay(unsigned long t)
 extern "C" void hal_init_bmp280(unsigned char iic_addr)
 {
   if (0x76 == iic_addr && Bmp280_76 != NULL) {
-    Bmp280_76->init();
+    Bmp280_76->init(iic_addr);
     return;
   }
 
   if (0x77 == iic_addr && Bmp280_77 != NULL) {
-    Bmp280_77->init();
+    Bmp280_77->init(iic_addr);
     return;
   }
 
   if (0x76 == iic_addr) {
     Bmp280_76 = new BMP280();
-    if (Bmp280_76->init()) { Bmp280Enable_76 = 1; }
+    if (Bmp280_76->init(iic_addr)) { Bmp280Enable_76 = 1; }
   }
 
   if (0x77 == iic_addr) {
     Bmp280_77 = new BMP280();
-    if (Bmp280_77->init()) { Bmp280Enable_77 = 1; }
+    if (Bmp280_77->init(iic_addr)) { Bmp280Enable_77 = 1; }
   }
 }
 

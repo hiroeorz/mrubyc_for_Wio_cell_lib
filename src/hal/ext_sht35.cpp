@@ -110,8 +110,8 @@ static void class_sht35_get_temp_and_humi_with_addr(mrb_vm *vm, mrb_value *v, in
   }
 }
 
-#define HEATER_STATUS_ON  (0x30 << 8 | 0x6d)
-#define HEATER_STATUS_OFF (0x30 << 8 | 0x66)
+#define HEATER_STATUS_ON  (0x01)
+#define HEATER_STATUS_OFF (0x00)
 
 
 static void class_sht35_heater_status_with_addr(mrb_vm *vm, mrb_value *v, int argc)
@@ -133,9 +133,100 @@ static void class_sht35_heater_status_with_addr(mrb_vm *vm, mrb_value *v, int ar
     if (HEATER_STATUS_ON == value || HEATER_STATUS_OFF == value) {
       SET_INT_RETURN(value);
     } else {
-      DEBUG_PRINTLN("SHT35: Invalid HeaterStatus");
+      char str[128];
+      sprintf(str, "SHT35: Invalid HeaterStatus: %02X", value);
+      DEBUG_PRINTLN(str);
       SET_NIL_RETURN();
     }
+  }
+}
+
+#define RESET_CHECK_ON  (0x01)
+#define RESET_CHECK_OFF (0x00)
+
+static void class_sht35_reset_check_with_addr(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINTLN("invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
+  SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
+  u16 value;
+
+  if (NO_ERROR != sht35->reset_check(&value)) {
+    DEBUG_PRINTLN("SHT35: Cannnot get ResetCheck");
+    SET_NIL_RETURN();
+  } else {
+    if (RESET_CHECK_ON == value || RESET_CHECK_OFF == value) {
+      SET_INT_RETURN(value);
+    } else {
+      char str[128];
+      sprintf(str, "SHT35: Invalid ResetCheck: %02X", value);
+      DEBUG_PRINTLN(str);
+      SET_NIL_RETURN();
+    }
+  }
+}
+
+static void class_sht35_soft_reset_with_addr(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINTLN("invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
+  SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
+
+  if (NO_ERROR != sht35->soft_reset()) {
+    DEBUG_PRINTLN("SHT35: soft reset error");
+    SET_FALSE_RETURN();
+  } else {
+    SET_TRUE_RETURN();
+  }
+}
+
+static void class_sht35_change_heater_status_with_addr(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 2) {
+    DEBUG_PRINTLN("invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
+  SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
+  int status = GET_INT_ARG(2);
+
+  if (NO_ERROR != sht35->change_heater_status(status)) {
+    DEBUG_PRINTLN("SHT35: change heater status error");
+    SET_FALSE_RETURN();
+  } else {
+    SET_TRUE_RETURN();
+  }
+}
+
+static void class_sht35_read_reg_status_with_addr(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINTLN("invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+
+  unsigned char iic_addr = (unsigned char)GET_INT_ARG(1);
+  SHT35* sht35 = (SHT35*)hal_get_sht35_obj(iic_addr);
+  u16 value;
+
+  if (NO_ERROR != sht35->read_reg_status(&value)) {
+    DEBUG_PRINTLN("SHT35: Cannnot get RegStatus");
+    SET_NIL_RETURN();
+  } else {
+    SET_INT_RETURN(value);
   }
 }
 
@@ -148,5 +239,9 @@ void define_sht35_class()
   mrbc_define_method(0, class_sht35, "get_humidity_with_addr", class_sht35_get_humidity_with_addr);
   mrbc_define_method(0, class_sht35, "get_temp_and_humi_with_addr", class_sht35_get_temp_and_humi_with_addr);
   mrbc_define_method(0, class_sht35, "heater_status_with_addr", class_sht35_heater_status_with_addr);
+  mrbc_define_method(0, class_sht35, "reset_check_with_addr", class_sht35_reset_check_with_addr);
+  mrbc_define_method(0, class_sht35, "soft_reset_with_addr", class_sht35_soft_reset_with_addr);
+  mrbc_define_method(0, class_sht35, "change_heater_status_with_addr", class_sht35_change_heater_status_with_addr);
+  mrbc_define_method(0, class_sht35, "read_reg_status_with_addr", class_sht35_read_reg_status_with_addr);
 }
 
