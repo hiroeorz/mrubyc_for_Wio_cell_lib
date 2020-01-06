@@ -115,7 +115,7 @@ static void class_serial_uart_clear(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_serial_uart_gets(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 0 && argc != 1) {
+  if (argc != 0 && argc != 1 && argc != 2) {
     DEBUG_PRINT("!!! invalid argc");
     SET_NIL_RETURN();
     return;
@@ -123,16 +123,26 @@ static void class_serial_uart_gets(mrb_vm *vm, mrb_value *v, int argc)
 
   char c = '\0';
   char eol = '\r';
+  int max_count = 1024;
 
   if (argc == 1) {
     uint8_t *str = GET_STRING_ARG(1);
     eol = str[0];
   }
 
+  if (argc == 2) {
+    max_count = GET_INT_ARG(2);
+  }
+
   int i = 0;
   char recv[32];  
+  int count = 0;
 
   while(c != eol) {
+    if (count >= max_count) {
+      break;
+    }
+
     if (SerialUART.available() > 0) {
       c = SerialUART.read();
       recv[i] = c;
@@ -141,6 +151,8 @@ static void class_serial_uart_gets(mrb_vm *vm, mrb_value *v, int argc)
       SET_NIL_RETURN();
       return;
     }
+
+    count++;
   }
 
   recv[i] = '\0';
