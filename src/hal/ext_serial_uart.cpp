@@ -102,7 +102,7 @@ static void class_serial_uart_clear(mrb_vm *vm, mrb_value *v, int argc)
     return;
   }
 
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 16; i++) {
     if (SerialUART.available() > 0) {
       while (SerialUART.available() > 0) { SerialUART.read(); }
     }
@@ -135,7 +135,7 @@ static void class_serial_uart_gets(mrb_vm *vm, mrb_value *v, int argc)
   }
 
   int i = 0;
-  char recv[32];  
+  char recv[max_count + 1];
   int count = 0;
 
   while(c != eol) {
