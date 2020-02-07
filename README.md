@@ -49,6 +49,15 @@ $ cd ~/Documents/Arduino/libraries/
 # git clone git@github.com:Seeed-Studio/Grove_BMP280.git
 ```
 
+### Grove_BME680 のインストール
+
+[Seeed-Studio/Seeed_BME680](https://github.com/Seeed-Studio/Seeed_BME680/blob/master/examples/seeed_bme680_test/seeed_bme680_test.ino)をインストールします.
+
+```
+$ cd ~/Documents/Arduino/libraries/
+# git clone git@github.com:Seeed-Studio/Seeed_BME680.git
+```
+
 ## Install
 
 本リポジトリをcloneします.
