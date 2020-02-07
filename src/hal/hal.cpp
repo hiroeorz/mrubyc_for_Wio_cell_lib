@@ -22,6 +22,11 @@ static BMP280 *Bmp280_77 = NULL;
 static int Bmp280Enable_76 = 0;
 static int Bmp280Enable_77 = 0;
 
+static Seeed_BME680 *Bme680_76 = NULL;
+static Seeed_BME680 *Bme680_77 = NULL;
+static int Bme680Enable_76 = 0;
+static int Bme680Enable_77 = 0;
+
 static SHT31 *Sht31 = NULL;
 
 static SHT35 *Sht35_44 = NULL;
@@ -110,6 +115,62 @@ extern "C" int hal_bmp280_is_enable(unsigned char iic_addr)
 
   return Bmp280Enable_77;
   DEBUG_PRINTLN("! BMP280: invalid iic_addr");
+
+  char s[256] = {'\0'};
+  sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);
+  DEBUG_PRINTLN(s);
+}
+
+/****************************************************
+ * BME680
+ ****************************************************/
+
+extern "C" void hal_init_bme680(unsigned char iic_addr)
+{
+  if (0x76 == iic_addr && Bme680_76 != NULL) {
+    Bme680_76->init();
+    return;
+  }
+
+  if (0x77 == iic_addr && Bme680_77 != NULL) {
+    Bme680_77->init();
+    return;
+  }
+
+  if (0x76 == iic_addr) {
+    Bme680_76 = new Seeed_BME680(iic_addr);
+    if (Bme680_76->init()) { Bme680Enable_76 = 1; }
+  }
+
+  if (0x77 == iic_addr) {
+    Bme680_77 = new Seeed_BME680(iic_addr);
+    if (Bme680_77->init()) { Bme680Enable_77 = 1; }
+  }
+}
+
+extern "C" void* hal_get_bme680_obj(unsigned char iic_addr)
+{
+  if (0x76 == iic_addr) {
+    return (void*)Bme680_76;
+  }
+
+  return (void*)Bme680_77;
+
+  DEBUG_PRINTLN("!!! BME680: invalid iic_addr");
+
+  char s[256] = {'\0'};
+  sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);
+  DEBUG_PRINTLN(s);
+}
+
+extern "C" int hal_bme680_is_enable(unsigned char iic_addr)
+{
+  if (0x76 == iic_addr) {
+    return Bme680Enable_76;
+  }
+
+  return Bme680Enable_77;
+  DEBUG_PRINTLN("! BME680: invalid iic_addr");
 
   char s[256] = {'\0'};
   sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);

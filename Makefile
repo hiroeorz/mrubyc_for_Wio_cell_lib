@@ -3,7 +3,7 @@
 TARGET=~/Documents/Arduino/libraries/mrubyc_for_Wio_cell_lib
 
 MRBC=mrbc
-SRC=./mrblib/*.rb
+SRC=./mrblib/bmp280.rb ./mrblib/bme680.rb ./mrblib/json_generator.rb ./mrblib/json_parser.rb ./mrblib/mqtt_client.rb ./mrblib/serial_uart.rb ./mrblib/sht35.rb ./mrblib/wio.rb
 RUBY_OUTPUT=./mrblib/wio_mrb_lib.rb
 OUTPUT=./src/hal/wio_mrb_lib.c
 
