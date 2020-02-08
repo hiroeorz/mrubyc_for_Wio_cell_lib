@@ -93,7 +93,7 @@ void hal_init_bmp280(unsigned char iic_addr);
 void* hal_get_bmp280_obj(unsigned char iic_addr);
 int hal_bmp280_is_enable(unsigned char iic_addr);
 
-void hal_init_bme680(unsigned char iic_addr);
+int hal_init_bme680(unsigned char iic_addr);
 void* hal_get_bme680_obj(unsigned char iic_addr);
 int hal_bme680_is_enable(unsigned char iic_addr);
 

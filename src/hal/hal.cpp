@@ -125,27 +125,45 @@ extern "C" int hal_bmp280_is_enable(unsigned char iic_addr)
  * BME680
  ****************************************************/
 
-extern "C" void hal_init_bme680(unsigned char iic_addr)
+extern "C" int hal_init_bme680(unsigned char iic_addr)
 {
   if (0x76 == iic_addr && Bme680_76 != NULL) {
     Bme680_76->init();
-    return;
+    return 1;
   }
 
   if (0x77 == iic_addr && Bme680_77 != NULL) {
     Bme680_77->init();
-    return;
+    return 1;
   }
 
+  int count = 10;
+  
   if (0x76 == iic_addr) {
     Bme680_76 = new Seeed_BME680(iic_addr);
-    if (Bme680_76->init()) { Bme680Enable_76 = 1; }
+
+    while (!Bme680_76->init()) {
+      DEBUG_PRINTLN("Bme680_76 init failed ! can't find device!");
+      count--;
+      if (count < 1){ return 0; }
+      delay(10000);
+    }
+    Bme680Enable_76 = 1;
   }
 
   if (0x77 == iic_addr) {
     Bme680_77 = new Seeed_BME680(iic_addr);
-    if (Bme680_77->init()) { Bme680Enable_77 = 1; }
+
+    while (!Bme680_77->init()) {
+      DEBUG_PRINTLN("Bme680_77 init failed ! can't find device!");
+      count--;
+      if (count < 1){ return 0; }
+      delay(10000);
+    }
+    Bme680Enable_77 = 1;
   }
+
+  return 1;
 }
 
 extern "C" void* hal_get_bme680_obj(unsigned char iic_addr)

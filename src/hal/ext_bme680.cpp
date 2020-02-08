@@ -12,7 +12,7 @@
 
 static void class_bme680_init(mrb_vm *vm, mrb_value *v, int argc)
 {
-  unsigned char iic_addr = 0x77; //default (selectable 0x76, 0x77)
+  unsigned char iic_addr = 0x76; //default (selectable 0x76, 0x77)
 
   if (argc == 0) {
   } else if (argc == 1) {
@@ -28,13 +28,19 @@ static void class_bme680_init(mrb_vm *vm, mrb_value *v, int argc)
     SET_NIL_RETURN();
   }
 
-  hal_init_bme680(iic_addr);
+  int result = hal_init_bme680(iic_addr);
+  if (result == 1) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+  
 }
 
 static void class_bme680_get_sensor_data_with_addr(mrb_vm *vm, mrb_value *v, int argc)
 {
   if (argc != 1) {
-    DEBUG_PRINTLN("invalid argc");
+    DEBUG_PRINTLN("Invalid argc");
     SET_NIL_RETURN();
     return;
   }
@@ -52,13 +58,13 @@ static void class_bme680_get_sensor_data_with_addr(mrb_vm *vm, mrb_value *v, int
   float press = bme680->sensor_result_value.pressure;
   float humi = bme680->sensor_result_value.humidity;
   float gas = bme680->sensor_result_value.gas;
-  
+
   mrbc_value array = mrbc_array_new(vm, 4);
   mrbc_value temp_value = mrb_float_value((mrbc_float)temp);
   mrbc_value humi_value = mrb_float_value((mrbc_float)humi);
   mrbc_value press_value = mrb_float_value((mrbc_float)press);
   mrbc_value gas_value = mrb_float_value((mrbc_float)gas);
-
+  
   mrbc_array_set(&array, 0, &temp_value);
   mrbc_array_set(&array, 1, &humi_value);
   mrbc_array_set(&array, 2, &press_value);

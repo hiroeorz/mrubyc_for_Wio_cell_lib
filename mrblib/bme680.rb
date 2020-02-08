@@ -1,12 +1,26 @@
+# coding: utf-8
 class BME680
 
-  def initialize(iic_addr = 0x77)
+  #
+  # センサーへの初期化処理を行い、センサーオブジェクトを生成する。
+  # 初期化に失敗すると@device_init_resultにfalseをセットする。
+  #
+  def initialize(iic_addr = 0x76)
     @iic_addr = iic_addr
-    init(iic_addr)
+    @device_init_result = init(iic_addr)
   end
 
+  #
+  # デバイスに対する初期化が成功していればtrue、失敗していたらfalseを返す.
+  #
+  def device_init_result
+    @device_init_result
+  end
+  
   def get_sensor_data
-    temp, humi, press, gas = get_sensor_data_with_addr(@iic_addr)
+    result  = get_sensor_data_with_addr(@iic_addr)
+    return nil if result.nil?
+    temp, humi, press, gas = result
     return BME680Result.new(temp, humi, press, gas)
   end
 
