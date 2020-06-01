@@ -114,7 +114,7 @@ void mrbc_kv_delete(mrbc_kv_handle *kvh)
 
 
 //================================================================
-/*! delete all datas
+/*! delete all datas and free data memory.
 
   @param  kvh	pointer to key-value handle.
 */
@@ -123,6 +123,7 @@ void mrbc_kv_delete_data(mrbc_kv_handle *kvh)
   if( kvh->data_size == 0 ) return;
 
   mrbc_kv_clear(kvh);
+  kvh->data_size = 0;
   mrbc_raw_free(kvh->data);
 }
 
@@ -184,7 +185,7 @@ int mrbc_kv_set(mrbc_kv_handle *kvh, mrbc_sym sym_id, mrbc_value *set_val)
 
   // replace value ?
   if( kvh->data[idx].sym_id == sym_id ) {
-    mrbc_dec_ref_counter( &kvh->data[idx].value );
+    mrbc_decref( &kvh->data[idx].value );
     kvh->data[idx].value = *set_val;
     return 0;
   }
@@ -307,7 +308,7 @@ int mrbc_kv_remove(mrbc_kv_handle *kvh, mrbc_sym sym_id)
   if( idx < 0 ) return 0;
   if( kvh->data[idx].sym_id != sym_id ) return 0;
 
-  mrbc_dec_ref_counter( &kvh->data[idx].value );
+  mrbc_decref( &kvh->data[idx].value );
   kvh->n_stored--;
   memmove( kvh->data + idx, kvh->data + idx + 1,
 	   sizeof(mrbc_kv) * (kvh->n_stored - idx) );
@@ -327,9 +328,27 @@ void mrbc_kv_clear(mrbc_kv_handle *kvh)
   mrbc_kv *p1 = kvh->data;
   const mrbc_kv *p2 = p1 + kvh->n_stored;
   while( p1 < p2 ) {
-    mrbc_dec_ref_counter(&p1->value);
+    mrbc_decref(&p1->value);
     p1++;
   }
 
   kvh->n_stored = 0;
+}
+
+
+//================================================================
+/*! duplicate
+
+  @param  src		pointer to key-value handle source.
+  @param  dst		pointer to key-value handle destination.
+*/
+void mrbc_kv_dup(const mrbc_kv_handle *src, mrbc_kv_handle *dst)
+{
+  mrbc_kv_iterator ite = mrbc_kv_iterator_new( src );
+
+  while( mrbc_kv_i_has_next( &ite ) ) {
+    mrbc_kv *kv = mrbc_kv_i_next( &ite );
+    mrbc_incref( &kv->value );
+    mrbc_kv_set( dst, kv->sym_id, &kv->value );
+  }
 }

@@ -70,10 +70,10 @@ static void class_bme680_get_sensor_data_with_addr(mrb_vm *vm, mrb_value *v, int
   mrbc_array_set(&array, 2, &press_value);
   mrbc_array_set(&array, 3, &gas_value);
 
-  mrbc_release(&temp_value);
-  mrbc_release(&humi_value);
-  mrbc_release(&press_value);
-  mrbc_release(&gas_value);
+  mrbc_decref(&temp_value);
+  mrbc_decref(&humi_value);
+  mrbc_decref(&press_value);
+  mrbc_decref(&gas_value);
 
   SET_RETURN(array);
 }

@@ -25,15 +25,20 @@
 #define MAX_REGS_SIZE 100
 #endif
 
-// maximum number of symbols (change 300 -> 600)
+// maximum number of symbols
 #if !defined(MAX_SYMBOLS_COUNT)
 #define MAX_SYMBOLS_COUNT 600
 #endif
 
+// maximum number of exception depth
+#if !defined(MAX_EXCEPTION_COUNT)
+#define MAX_EXCEPTION_COUNT 16
+#endif
+
+
 // memory management
 //  MRBC_ALLOC_16BIT or MRBC_ALLOC_24BIT
-#define MRBC_ALLOC_16BIT
-
+#define MRBC_ALLOC_24BIT
 
 /* Configure environment
    0: NOT USE
@@ -79,9 +84,11 @@
 // #define MRBC_REQUIRE_32BIT_ALIGNMENT
 
 // Debug code.
-#if !defined(MRBC_DEBUG)
+#if !defined(NDEBUG)
 #define MRBC_DEBUG
 #endif
+
+// #define MRBC_NO_TIMER
 
 #if !defined(MRBC_NO_TIMER)
 #define MRBC_NO_TIMER

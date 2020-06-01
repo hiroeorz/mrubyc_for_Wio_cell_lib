@@ -104,8 +104,8 @@ static void class_sht35_get_temp_and_humi_with_addr(mrb_vm *vm, mrb_value *v, in
     mrbc_value hum_value = mrb_float_value((mrbc_float)hum);
     mrbc_array_set(&array, 0, &temp_value);
     mrbc_array_set(&array, 1, &hum_value);
-    mrbc_release(&temp_value);
-    mrbc_release(&hum_value);
+    mrbc_decref(&temp_value);
+    mrbc_decref(&hum_value);
     SET_RETURN(array);
   }
 }
