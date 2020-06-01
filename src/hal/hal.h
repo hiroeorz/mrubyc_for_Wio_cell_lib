@@ -39,12 +39,12 @@ extern "C" {
 // Congiguring small value for MRBC_TICK_UNIT may cause a decline of timer
 // accracy depending on kernel constant HZ and USER_HZ.
 // For more information about it on `man 7 time`.
-#define MRBC_TICK_UNIT MRBC_TICK_UNIT_4_MS
+#define MRBC_TICK_UNIT MRBC_TICK_UNIT_1_MS
 // Substantial timeslice value (millisecond) will be
 // MRBC_TICK_UNIT * MRBC_TIMESLICE_TICK_COUNT (+ Jitter).
 // MRBC_TIMESLICE_TICK_COUNT must be natural number
 // (recommended value is from 1 to 10).
-#define MRBC_TIMESLICE_TICK_COUNT 3
+#define MRBC_TIMESLICE_TICK_COUNT 10
 #endif
 
   
