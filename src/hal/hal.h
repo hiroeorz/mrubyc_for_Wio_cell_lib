@@ -39,7 +39,7 @@ extern "C" {
 // Congiguring small value for MRBC_TICK_UNIT may cause a decline of timer
 // accracy depending on kernel constant HZ and USER_HZ.
 // For more information about it on `man 7 time`.
-#define MRBC_TICK_UNIT MRBC_TICK_UNIT_1_MS
+#define MRBC_TICK_UNIT MRBC_TICK_UNIT_10_MS
 // Substantial timeslice value (millisecond) will be
 // MRBC_TICK_UNIT * MRBC_TIMESLICE_TICK_COUNT (+ Jitter).
 // MRBC_TIMESLICE_TICK_COUNT must be natural number
@@ -72,7 +72,7 @@ void hal_disable_irq(void);
 void hal_init(void);
 # define hal_enable_irq()  ((void)0)
 # define hal_disable_irq() ((void)0)
-# define hal_idle_cpu()    (hal_delay(1), mrbc_tick())
+# define hal_idle_cpu()    (hal_delay(MRBC_TICK_UNIT), mrbc_tick())
 
 #endif
 

@@ -8,5 +8,5 @@ while true
   last = rgb.pop
   rgb.unshift(last)
   wio.led_set_rgb(rgb[0], rgb[1], rgb[2])
-  sleep 0.3
+  sleep 1
 end
