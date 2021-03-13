@@ -95,6 +95,6 @@
 #define MRBC_DEBUG
 #endif
 
-// #define MRBC_NO_TIMER
+#define MRBC_NO_TIMER
 
 #endif
