@@ -27,7 +27,7 @@
 
 // maximum number of symbols
 #if !defined(MAX_SYMBOLS_COUNT)
-#define MAX_SYMBOLS_COUNT 600
+#define MAX_SYMBOLS_COUNT 255
 #endif
 
 // maximum number of exception depth
@@ -40,13 +40,20 @@
 //  MRBC_ALLOC_16BIT or MRBC_ALLOC_24BIT
 #define MRBC_ALLOC_24BIT
 
+
+// Console new-line mode.
+//  If you need to convert LF to CRLF in console output, enable the following:
+// #define MRBC_CONVERT_CRLF
+
+
 /* Configure environment
    0: NOT USE
-   1: USE
+   1: USE float
+   2: USE double
 */
 // USE Float. Support Float class.
 #if !defined(MRBC_USE_FLOAT)
-#define MRBC_USE_FLOAT 1
+#define MRBC_USE_FLOAT 2
 #endif
 
 // Use math. Support Math class.
@@ -89,9 +96,5 @@
 #endif
 
 // #define MRBC_NO_TIMER
-
-#if !defined(MRBC_NO_TIMER)
-#define MRBC_NO_TIMER
-#endif
 
 #endif

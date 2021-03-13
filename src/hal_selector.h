@@ -24,5 +24,5 @@
 #elif defined(MRBC_USE_HAL_PIC24)
 #include "hal_pic24/hal.h"
 #else
-#include "hal/hal.h"
+#include "hal_posix/hal.h"
 #endif /* MRBC_USE_HAL_xxx */
