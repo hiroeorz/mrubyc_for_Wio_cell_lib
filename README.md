@@ -10,6 +10,11 @@ mruby/c for Wio はSeeed社が開発した以下の基板上で [mruby/c](https:
 mruby/cでコードを書いたLED制御サンプル（クリックで再生）。
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/eMzv5k-YnNI/0.jpg)](http://www.youtube.com/watch?v=eMzv5k-YnNI)
 
+## Environment
+
+* mruby-2.0.1
+* mrubyc-2.1
+
 ## Arduino IDE側の準備
 
 1. Arduino IDEを起動し、 `スケッチ` -> `ライブラリをインクルード` -> `ライブラリを管理` をクリックし、ライブラリマネージャを起動します。
