@@ -26,6 +26,14 @@ mruby/cでコードを書いたLED制御サンプル（クリックで再生）�
 ### Arduino Client for MQTT のインストール
 
 1. [SeeedJP/pubsubclient](https://github.com/SeeedJP/pubsubclient)のREADMEに従い、 `Arduino Client for MQTT` をインストールします。
+2. https://github.com/SeeedJP/pubsubclient.git
+
+[SeeedJP/pubsubclient](https://github.com/SeeedJP/pubsubclient)をインストールします.
+
+```
+$ cd ~/Documents/Arduino/libraries/
+# git clone https://github.com/SeeedJP/pubsubclient.git
+```
 
 ### Grove_SHT31_Temp_Humi_Sensor のインストール
 
