@@ -44,12 +44,19 @@ static void class_air_quality_get_data(mrb_vm *vm, mrb_value *v, int argc)
   }
 
   int sensor_ready_flg = rdata[1];
+  // 温度 -40~125℃ x100
   int16_t int_temp = ((rdata[2]&0xFF)<<8) + (rdata[3]&0xFF);
+  // 湿度 0~100% x100
   int16_t int_humd = ((rdata[4]&0xFF)<<8) + (rdata[5]&0xFF);
+  // EtOH 0.01~655ppm x100
   int16_t int_eth  = ((rdata[6]&0xFF)<<8) + (rdata[7]&0xFF);
+  // TVOC(総揮発性有機化合物) 0.01~10mg/m3 x100
   int16_t int_tvoc = ((rdata[8]&0xFF)<<8) + (rdata[9]&0xFF);
+  // CO2(推定値) 400~5000ppm x10
   int16_t int_eco2 = ((rdata[10]&0xFF)<<8) + (rdata[11]&0xFF);
+  // IAQ(室内空気質) 1.0~5.0 x100
   int16_t int_iaq  = ((rdata[12]&0xFF)<<8) + (rdata[13]&0xFF);
+  // LogRcda - x100
   int16_t int_rcda = ((rdata[14]&0xFF)<<8) + (rdata[15]&0xFF);
 
   mrbc_value array = mrbc_array_new(vm, 8);
