@@ -6,6 +6,7 @@
 
 #include "hal.h"
 #include "libmrubyc.h"
+#include <Wire.h>
 
 #if defined ARDUINO_WIO_LTE
 static WioLTE *Wio = NULL;
@@ -138,7 +139,7 @@ extern "C" int hal_init_bme680(unsigned char iic_addr)
   }
 
   int count = 10;
-  
+
   if (0x76 == iic_addr) {
     Bme680_76 = new Seeed_BME680(iic_addr);
 
@@ -225,7 +226,7 @@ extern "C" int hal_init_sht35(unsigned char iic_addr)
     return Sht35_44->init();
   }
 
-  if (iic_addr == 0x45 && Sht35_45 != NULL) { 
+  if (iic_addr == 0x45 && Sht35_45 != NULL) {
     return Sht35_45->init();
   }
 
@@ -269,4 +270,13 @@ extern "C" void* hal_get_sht35_obj(unsigned char iic_addr)
   sprintf(s, "iic_addr: %02x", (const unsigned char*)&iic_addr);
   DEBUG_PRINTLN(s);
   return NULL;
+}
+
+/****************************************************
+ * Air Quality Sensor
+ ****************************************************/
+
+extern "C" void hal_init_air_quality(void)
+{
+  Wire.begin();
 }

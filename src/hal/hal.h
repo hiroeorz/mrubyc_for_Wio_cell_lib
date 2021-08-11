@@ -47,7 +47,7 @@ extern "C" {
 #define MRBC_TIMESLICE_TICK_COUNT 10
 #endif
 
-  
+
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/
 #ifndef MRBC_SCHEDULER_EXIT
@@ -123,6 +123,8 @@ void* hal_get_sht31_obj(void);
 
 int hal_init_sht35(unsigned char iic_addr);
 void* hal_get_sht35_obj(unsigned char iic_addr);
+
+void hal_init_air_quality(void);
 
 #ifdef __cplusplus
 }

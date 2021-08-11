@@ -31,6 +31,7 @@ void mrbc_define_wio_methods(void)
   define_sht31_class();
   define_sht35_class();
   define_bme680_class();
+  define_air_quality_class();
 
   // mrblib以下のrubyソースから生成したバイトコードを読み込む.
   // src/hal/wio_mrb_lib.c
