@@ -62,6 +62,18 @@ static void class_serial_uart_print(mrb_vm *vm, mrb_value *v, int argc)
   SerialUART.print((const char *)str);
 }
 
+static void class_serial_uart_write(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 1) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_FALSE_RETURN();
+    return;
+  }
+
+  int val = GET_INT_ARG(1);
+  SerialUART.write((char)val);
+}
+
 static void class_serial_uart_read(mrb_vm *vm, mrb_value *v, int argc)
 {
   if (argc != 0) {
@@ -77,6 +89,22 @@ static void class_serial_uart_read(mrb_vm *vm, mrb_value *v, int argc)
     const char str[] = {c, '\0'};
     mrbc_value str_obj = mrbc_string_new_cstr(vm, str);
     SET_RETURN(str_obj);
+  } else {
+    SET_NIL_RETURN();
+  }
+}
+
+static void class_serial_uart_read_binary(mrb_vm *vm, mrb_value *v, int argc)
+{
+  if (argc != 0) {
+    DEBUG_PRINT("!!! invalid argc");
+    SET_NIL_RETURN();
+    return;
+  }
+  
+  if (SerialUART.available() > 0) {
+    int val = SerialUART.read();
+    SET_INT_RETURN(val);
   } else {
     SET_NIL_RETURN();
   }
@@ -167,7 +195,9 @@ void define_serial_uart_class()
 
   mrbc_define_method(0, class_uart, "initialize", class_serial_uart_initialize);
   mrbc_define_method(0, class_uart, "print", class_serial_uart_print);
+  mrbc_define_method(0, class_uart, "write", class_serial_uart_write);
   mrbc_define_method(0, class_uart, "read", class_serial_uart_read);
+  mrbc_define_method(0, class_uart, "read_binary", class_serial_uart_read_binary);
   mrbc_define_method(0, class_uart, "gets", class_serial_uart_gets);
   mrbc_define_method(0, class_uart, "available", class_serial_uart_available);
   mrbc_define_method(0, class_uart, "clear!", class_serial_uart_clear);
