@@ -71,7 +71,7 @@ mrbc_value mrbc_string_new(struct VM *vm, const void *src, int len)
     return value;
   }
 
-  h->ref_count = 1;
+  MRBC_INIT_OBJECT_HEADER( h, "ST" );
   h->size = len;
   h->data = str;
 
@@ -122,7 +122,7 @@ mrbc_value mrbc_string_new_alloc(struct VM *vm, void *buf, int len)
   h = (mrbc_string *)mrbc_alloc(vm, sizeof(mrbc_string));
   if( !h ) return value;		// ENOMEM
 
-  h->ref_count = 1;
+  MRBC_INIT_OBJECT_HEADER( h, "ST" );
   h->size = len;
   h->data = buf;
 
@@ -142,6 +142,17 @@ void mrbc_string_delete(mrbc_value *str)
   mrbc_raw_free(str->string);
 }
 
+
+
+//================================================================
+/*! clear content
+*/
+void mrbc_string_clear(mrbc_value *str)
+{
+  mrbc_raw_realloc(str->string->data, 1);
+  str->string->data[0] = '\0';
+  str->string->size = 0;
+}
 
 
 //================================================================
@@ -346,6 +357,29 @@ int mrbc_string_chomp(mrbc_value *src)
 }
 
 
+//================================================================
+/*! (method) new
+*/
+static void c_string_new(struct VM *vm, mrbc_value v[], int argc)
+{
+  if (argc == 1 && v[1].tt != MRBC_TT_STRING) {
+    console_print( "TypeError\n" ); // raise? TypeError
+    return;
+  }
+  if (argc > 1) {
+    console_print( "Wrong number of arguments (expected 0..1)\n" ); // raise? ArgumentError
+    return;
+  }
+
+  mrbc_value value;
+  if (argc == 0) {
+    value = mrbc_string_new(vm, NULL, 0);
+  } else {
+    value = mrbc_string_dup(vm, &v[1]);
+  }
+  SET_RETURN(value);
+}
+
 
 //================================================================
 /*! (method) +
@@ -455,63 +489,36 @@ static void c_string_append(struct VM *vm, mrbc_value v[], int argc)
 */
 static void c_string_slice(struct VM *vm, mrbc_value v[], int argc)
 {
-  mrbc_value *v1 = &v[1];
-  mrbc_value *v2 = &v[2];
+  int target_len = mrbc_string_size(v);
+  int pos = mrbc_fixnum(v[1]);
+  int len;
 
-  /*
-    in case of slice(nth) -> String | nil
-  */
-  if( argc == 1 && v1->tt == MRBC_TT_FIXNUM ) {
-    int len = v->string->size;
-    int idx = v1->i;
-    int ch = -1;
-    if( idx >= 0 ) {
-      if( idx < len ) {
-        ch = *(v->string->data + idx);
-      }
-    } else {
-      idx += len;
-      if( idx >= 0 ) {
-        ch = *(v->string->data + idx);
-      }
-    }
-    if( ch < 0 ) goto RETURN_NIL;
+  // in case of slice!(nth) -> String | nil
+  if( argc == 1 && mrbc_type(v[1]) == MRBC_TT_FIXNUM ) {
+    len = 1;
 
-    mrbc_value value = mrbc_string_new(vm, NULL, 1);
-    if( !value.string ) goto RETURN_NIL;		// ENOMEM
+  // in case of slice!(nth, len) -> String | nil
+  } else if( argc == 2 && mrbc_type(v[1]) == MRBC_TT_FIXNUM &&
+	                  mrbc_type(v[2]) == MRBC_TT_FIXNUM ) {
+    len = mrbc_fixnum(v[2]);
 
-    value.string->data[0] = ch;
-    value.string->data[1] = '\0';
-    SET_RETURN(value);
-    return;		// normal return
+  // other case
+  } else {
+    console_print( "Not support such case in String#[].\n" );
+    goto RETURN_NIL;
   }
 
-  /*
-    in case of slice(nth, len) -> String | nil
-  */
-  if( argc == 2 && v1->tt == MRBC_TT_FIXNUM && v2->tt == MRBC_TT_FIXNUM ) {
-    int len = v->string->size;
-    int idx = v1->i;
-    if( idx < 0 ) idx += len;
-    if( idx < 0 ) goto RETURN_NIL;
+  if( pos < 0 ) pos += target_len;
+  if( pos < 0 ) goto RETURN_NIL;
+  if( len > (target_len - pos) ) len = target_len - pos;
+  if( len < 0 ) goto RETURN_NIL;
+  if( argc == 1 && len <= 0 ) goto RETURN_NIL;
 
-    int rlen = (v2->i < (len - idx)) ? v2->i : (len - idx);
-						// min( v2->i, (len-idx) )
-    if( rlen < 0 ) goto RETURN_NIL;
+  mrbc_value ret = mrbc_string_new(vm, mrbc_string_cstr(v) + pos, len);
+  if( !ret.string ) goto RETURN_NIL;		// ENOMEM
 
-    mrbc_value value = mrbc_string_new(vm, v->string->data + idx, rlen);
-    if( !value.string ) goto RETURN_NIL;		// ENOMEM
-
-    SET_RETURN(value);
-    return;		// normal return
-  }
-
-  /*
-    other case
-  */
-  console_print( "Not support such case in String#[].\n" );
-  return;
-
+  SET_RETURN(ret);
+  return;		// normal return
 
  RETURN_NIL:
   SET_NIL_RETURN();
@@ -525,7 +532,7 @@ static void c_string_insert(struct VM *vm, mrbc_value v[], int argc)
 {
   int nth;
   int len;
-  mrbc_value *val;
+  const mrbc_value *val;
 
   /*
     in case of self[nth] = val
@@ -590,6 +597,15 @@ static void c_string_chomp(struct VM *vm, mrbc_value v[], int argc)
 
 
 //================================================================
+/*! (method) clear
+*/
+static void c_string_clear(struct VM *vm, mrbc_value v[], int argc)
+{
+  mrbc_string_clear(&v[0]);
+}
+
+
+//================================================================
 /*! (method) chomp!
 */
 static void c_string_chomp_self(struct VM *vm, mrbc_value v[], int argc)
@@ -625,9 +641,19 @@ static void c_string_empty(struct VM *vm, mrbc_value v[], int argc)
 */
 static void c_string_getbyte(struct VM *vm, mrbc_value v[], int argc)
 {
-  int i = (uint8_t)mrbc_string_cstr(v)[ v[1].i ];
+  int len = mrbc_string_size(&v[0]);
+  mrbc_int idx = mrbc_fixnum(v[1]);
 
-  SET_INT_RETURN( i );
+  if( idx >= 0 ) {
+    if( idx >= len ) idx = -1;
+  } else {
+    idx += len;
+  }
+  if( idx >= 0 ) {
+    SET_INT_RETURN( ((uint8_t *)mrbc_string_cstr(&v[0]))[idx] );
+  } else {
+    SET_NIL_RETURN();
+  }
 }
 
 
@@ -692,9 +718,57 @@ static void c_string_inspect(struct VM *vm, mrbc_value v[], int argc)
 */
 static void c_string_ord(struct VM *vm, mrbc_value v[], int argc)
 {
-  int i = (uint8_t)mrbc_string_cstr(v)[0];
+  int i = ((uint8_t *)mrbc_string_cstr(v))[0];
 
   SET_INT_RETURN( i );
+}
+
+
+//================================================================
+/*! (method) slice!
+*/
+static void c_string_slice_self(struct VM *vm, mrbc_value v[], int argc)
+{
+  int target_len = mrbc_string_size(v);
+  int pos = mrbc_fixnum(v[1]);
+  int len;
+
+  // in case of slice!(nth) -> String | nil
+  if( argc == 1 && mrbc_type(v[1]) == MRBC_TT_FIXNUM ) {
+    len = 1;
+
+  // in case of slice!(nth, len) -> String | nil
+  } else if( argc == 2 && mrbc_type(v[1]) == MRBC_TT_FIXNUM &&
+	                  mrbc_type(v[2]) == MRBC_TT_FIXNUM ) {
+    len = mrbc_fixnum(v[2]);
+
+  // other case
+  } else {
+    console_print( "Not support such case in String#slice!.\n" );
+    goto RETURN_NIL;
+  }
+
+  if( pos < 0 ) pos += target_len;
+  if( pos < 0 ) goto RETURN_NIL;
+  if( len > (target_len - pos) ) len = target_len - pos;
+  if( len < 0 ) goto RETURN_NIL;
+  if( argc == 1 && len <= 0 ) goto RETURN_NIL;
+
+  mrbc_value ret = mrbc_string_new(vm, mrbc_string_cstr(v) + pos, len);
+  if( !ret.string ) goto RETURN_NIL;		// ENOMEM
+
+  if( len > 0 ) {
+    memmove( mrbc_string_cstr(v) + pos, mrbc_string_cstr(v) + pos + len,
+	     mrbc_string_size(v) - pos - len + 1 );
+    v->string->size = mrbc_string_size(v) - len;
+    mrbc_raw_realloc( mrbc_string_cstr(v), mrbc_string_size(v)+1 );
+  }
+
+  SET_RETURN(ret);
+  return;		// normal return
+
+ RETURN_NIL:
+  SET_NIL_RETURN();
 }
 
 
@@ -1146,49 +1220,53 @@ static void c_string_include(struct VM *vm, mrbc_value v[], int argc)
 }
 
 
-//================================================================
-/*! initialize
-*/
-void mrbc_init_class_string(struct VM *vm)
-{
-  mrbc_class_string = mrbc_define_class(vm, "String", mrbc_class_object);
+/* MRBC_AUTOGEN_METHOD_TABLE
 
-  mrbc_define_method(vm, mrbc_class_string, "+",	c_string_add);
-  mrbc_define_method(vm, mrbc_class_string, "*",	c_string_mul);
-  mrbc_define_method(vm, mrbc_class_string, "size",	c_string_size);
-  mrbc_define_method(vm, mrbc_class_string, "length",	c_string_size);
-  mrbc_define_method(vm, mrbc_class_string, "to_i",	c_string_to_i);
-  mrbc_define_method(vm, mrbc_class_string, "to_s",	c_ineffect);
-  mrbc_define_method(vm, mrbc_class_string, "<<",	c_string_append);
-  mrbc_define_method(vm, mrbc_class_string, "[]",	c_string_slice);
-  mrbc_define_method(vm, mrbc_class_string, "[]=",	c_string_insert);
-  mrbc_define_method(vm, mrbc_class_string, "chomp",	c_string_chomp);
-  mrbc_define_method(vm, mrbc_class_string, "chomp!",	c_string_chomp_self);
-  mrbc_define_method(vm, mrbc_class_string, "dup",	c_string_dup);
-  mrbc_define_method(vm, mrbc_class_string, "empty?",	c_string_empty);
-  mrbc_define_method(vm, mrbc_class_string, "getbyte",	c_string_getbyte);
-  mrbc_define_method(vm, mrbc_class_string, "index",	c_string_index);
-  mrbc_define_method(vm, mrbc_class_string, "inspect",	c_string_inspect);
-  mrbc_define_method(vm, mrbc_class_string, "ord",	c_string_ord);
-  mrbc_define_method(vm, mrbc_class_string, "split",	c_string_split);
-  mrbc_define_method(vm, mrbc_class_string, "lstrip",	c_string_lstrip);
-  mrbc_define_method(vm, mrbc_class_string, "lstrip!",	c_string_lstrip_self);
-  mrbc_define_method(vm, mrbc_class_string, "rstrip",	c_string_rstrip);
-  mrbc_define_method(vm, mrbc_class_string, "rstrip!",	c_string_rstrip_self);
-  mrbc_define_method(vm, mrbc_class_string, "strip",	c_string_strip);
-  mrbc_define_method(vm, mrbc_class_string, "strip!",	c_string_strip_self);
-  mrbc_define_method(vm, mrbc_class_string, "to_sym",	c_string_to_sym);
-  mrbc_define_method(vm, mrbc_class_string, "intern",	c_string_to_sym);
-  mrbc_define_method(vm, mrbc_class_string, "tr",	c_string_tr);
-  mrbc_define_method(vm, mrbc_class_string, "tr!",	c_string_tr_self);
-  mrbc_define_method(vm, mrbc_class_string, "start_with?", c_string_start_with);
-  mrbc_define_method(vm, mrbc_class_string, "end_with?",c_string_end_with);
-  mrbc_define_method(vm, mrbc_class_string, "include?",	c_string_include);
+  CLASS("String")
+  FILE("method_table_string.h")
+  FUNC("mrbc_init_class_string")
+
+  METHOD( "new",	c_string_new )
+  METHOD( "+",		c_string_add )
+  METHOD( "*",		c_string_mul )
+  METHOD( "size",	c_string_size )
+  METHOD( "length",	c_string_size )
+  METHOD( "to_i",	c_string_to_i )
+  METHOD( "to_s",	c_ineffect )
+  METHOD( "<<",		c_string_append )
+  METHOD( "[]",		c_string_slice )
+  METHOD( "[]=",	c_string_insert )
+  METHOD( "b",		c_ineffect )
+  METHOD( "clear",	c_string_clear )
+  METHOD( "chomp",	c_string_chomp )
+  METHOD( "chomp!",	c_string_chomp_self )
+  METHOD( "dup",	c_string_dup )
+  METHOD( "empty?",	c_string_empty )
+  METHOD( "getbyte",	c_string_getbyte )
+  METHOD( "index",	c_string_index )
+  METHOD( "inspect",	c_string_inspect )
+  METHOD( "ord",	c_string_ord )
+  METHOD( "slice!",	c_string_slice_self )
+  METHOD( "split",	c_string_split )
+  METHOD( "lstrip",	c_string_lstrip )
+  METHOD( "lstrip!",	c_string_lstrip_self )
+  METHOD( "rstrip",	c_string_rstrip )
+  METHOD( "rstrip!",	c_string_rstrip_self )
+  METHOD( "strip",	c_string_strip )
+  METHOD( "strip!",	c_string_strip_self )
+  METHOD( "to_sym",	c_string_to_sym )
+  METHOD( "intern",	c_string_to_sym )
+  METHOD( "tr",		c_string_tr )
+  METHOD( "tr!",	c_string_tr_self )
+  METHOD( "start_with?", c_string_start_with )
+  METHOD( "end_with?",	c_string_end_with )
+  METHOD( "include?",	c_string_include )
 
 #if MRBC_USE_FLOAT
-  mrbc_define_method(vm, mrbc_class_string, "to_f",	c_string_to_f);
+  METHOD( "to_f",	c_string_to_f )
 #endif
-}
+*/
+#include "method_table_string.h"
 
 
 #endif // MRBC_USE_STRING

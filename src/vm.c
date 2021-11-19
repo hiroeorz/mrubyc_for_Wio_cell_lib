@@ -33,8 +33,23 @@
 #include "c_hash.h"
 
 
+/***** Macros ***************************************************************/
+/*
+   Top-level return immediately stops the program (task) and
+   doesn't handle its arguments
+ */
+#define STOP_IF_TOPLEVEL()            \
+  do {                                \
+    if( vm->callinfo_tail == NULL ){  \
+      vm->flag_preemption = 1;        \
+      return -1;                      \
+    }                                 \
+  } while (0)
+
+
 static uint16_t free_vm_bitmap[MAX_VM_COUNT / 16 + 1];
 
+#define CALL_MAXARGS 255
 
 //================================================================
 /*! get sym[n] from symbol table in irep
@@ -82,6 +97,10 @@ static int send_by_name( struct VM *vm, const char *method_name, mrbc_value *reg
 {
   mrbc_value *recv = &regs[a];
 
+  // if SENDV or SENDVB, params are in one Array
+  int flag_array_arg = ( c == CALL_MAXARGS );
+  if( flag_array_arg ) c = 1;
+
   // if not OP_SENDB, blcok does not exist
   int bidx = a + c + 1;
   if( !is_sendb ){
@@ -91,18 +110,18 @@ static int send_by_name( struct VM *vm, const char *method_name, mrbc_value *reg
 
   mrbc_sym sym_id = str_to_symid(method_name);
   mrbc_class *cls = find_class_by_object(recv);
-  mrbc_proc *m = find_method_by_class(&cls, cls, sym_id);
+  mrbc_method method;
 
-  if( m == 0 ) {
+  if( mrbc_find_method( &method, cls, sym_id ) == 0 ) {
     console_printf("Undefined local variable or method '%s' for %s\n",
 		   method_name, symid_to_str( cls->sym_id ));
     return 1;
   }
 
-  // m is C func
-  if( m->c_func ) {
-    m->func(vm, regs + a, c);
-    if( m->func == c_proc_call ) return 0;
+  // call C method.
+  if( method.c_func ) {
+    method.func(vm, regs + a, c);
+    if( method.func == c_proc_call ) return 0;
     if( vm->exc != NULL || vm->exc_pending != NULL ) return 0;
 
     int release_reg = a+1;
@@ -113,14 +132,14 @@ static int send_by_name( struct VM *vm, const char *method_name, mrbc_value *reg
     return 0;
   }
 
-  // m is Ruby method.
-  // callinfo
+  // call Ruby method.
+  if( flag_array_arg ) c = CALL_MAXARGS;
   mrbc_callinfo *callinfo = mrbc_push_callinfo(vm, sym_id, a, c);
-  callinfo->own_class = cls;
+  callinfo->own_class = method.cls;
 
   // target irep
-  vm->pc_irep = m->irep;
-  vm->inst = m->irep->code;
+  vm->pc_irep = method.irep;
+  vm->inst = method.irep->code;
 
   // new regs
   vm->current_regs += a;
@@ -160,8 +179,14 @@ const char *mrbc_get_callee_name( struct VM *vm )
 mrbc_irep *mrbc_irep_alloc(struct VM *vm)
 {
   mrbc_irep *p = (mrbc_irep *)mrbc_alloc(vm, sizeof(mrbc_irep));
-  if( p )
+  if( p ) {
     memset(p, 0, sizeof(mrbc_irep));	// caution: assume NULL is zero.
+  }
+
+#if defined(MRBC_DEBUG)
+  p->type[0] = 'R';	// set "RP"
+  p->type[1] = 'P';
+#endif
   return p;
 }
 
@@ -591,15 +616,25 @@ static inline int op_getconst( mrbc_vm *vm, mrbc_value *regs )
 
   const char *sym_name = mrbc_get_irep_symbol(vm, b);
   mrbc_sym sym_id = str_to_symid(sym_name);
+  mrbc_class *cls = NULL;
+  mrbc_value *v;
 
-  mrbc_decref(&regs[a]);
-  mrbc_value *v = mrbc_get_const(sym_id);
-  if( v == NULL ) {             // raise?
+  if( vm->callinfo_tail ) cls = vm->callinfo_tail->own_class;
+  while( cls != NULL ) {
+    v = mrbc_get_class_const(cls, sym_id);
+    if( v != NULL ) goto DONE;
+    cls = cls->super;
+  }
+
+  v = mrbc_get_const(sym_id);
+  if( v == NULL ) {		// raise?
     console_printf( "NameError: uninitialized constant %s\n", sym_name );
     return 0;
   }
 
+ DONE:
   mrbc_incref(v);
+  mrbc_decref(&regs[a]);
   regs[a] = *v;
 
   return 0;
@@ -621,29 +656,13 @@ static inline int op_setconst( mrbc_vm *vm, mrbc_value *regs )
 
   const char *sym_name = mrbc_get_irep_symbol(vm, b);
   mrbc_sym sym_id = str_to_symid(sym_name);
-  mrbc_class *cls = find_class_by_object( &regs[0] );
-
-  // supports class constants up to 1 level.
-  if( cls != mrbc_class_object ) {
-    mrbc_sym id = cls->sym_id;
-    char buf[10];
-    int i;
-    for( i = 3; i >= 0; i-- ) {
-      buf[i] = '0' + (id & 0x0f);
-      id >>= 4;
-    }
-    id = sym_id;
-    for( i = 7; i >= 4; i-- ) {
-      buf[i] = '0' + (id & 0x0f);
-      id >>= 4;
-    }
-    buf[8] = 0;
-
-    sym_id = mrbc_symbol_new( vm, buf ).i;
-  }
 
   mrbc_incref(&regs[a]);
-  mrbc_set_const(sym_id, &regs[a]);
+  if( mrbc_type(regs[0]) == MRBC_TT_CLASS ) {
+    mrbc_set_class_const(regs[0].cls, sym_id, &regs[a]);
+  } else {
+    mrbc_set_const(sym_id, &regs[a]);
+  }
 
   return 0;
 }
@@ -663,32 +682,21 @@ static inline int op_getmcnst( mrbc_vm *vm, mrbc_value *regs )
   FETCH_BB();
 
   const char *sym_name = mrbc_get_irep_symbol(vm, b);
+  mrbc_sym sym_id = str_to_symid(sym_name);
   mrbc_class *cls = regs[a].cls;
-  mrbc_sym id = cls->sym_id;
-  char buf[10];
-  int i;
-  for( i = 3; i >= 0; i-- ) {
-    buf[i] = '0' + (id & 0x0f);
-    id >>= 4;
-  }
-  id = str_to_symid(sym_name);
-  for( i = 7; i >= 4; i-- ) {
-    buf[i] = '0' + (id & 0x0f);
-    id >>= 4;
-  }
-  buf[8] = 0;
+  mrbc_value *v;
 
-  mrbc_sym sym_id = str_to_symid(buf);
-
-  mrbc_decref(&regs[a]);
-  mrbc_value *v = mrbc_get_const(sym_id);
-  if( v == NULL ) {             // raise?
-    console_printf( "NameError: uninitialized constant %s::%s\n",
-		    symid_to_str( cls->sym_id ), sym_name );
-    return 0;
+  while( !(v = mrbc_get_class_const(cls, sym_id)) ) {
+    cls = cls->super;
+    if( !cls ) {	// raise?
+      console_printf( "NameError: uninitialized constant %s::%s\n",
+		      symid_to_str( regs[a].cls->sym_id ), sym_name );
+      return 0;
+    }
   }
 
   mrbc_incref(v);
+  mrbc_decref(&regs[a]);
   regs[a] = *v;
 
   return 0;
@@ -1054,7 +1062,45 @@ static inline int op_epop( mrbc_vm *vm, mrbc_value *regs )
 
 
 //================================================================
-/*! OP_SEND, OP_SENDB
+/*! OP_SENDV
+
+  R(a) = call(R(a),Syms(b),*R(a+1))
+
+  @param  vm    pointer of VM.
+  @param  regs  pointer to regs
+  @retval 0  No error.
+*/
+static inline int op_sendv( mrbc_vm *vm, mrbc_value *regs )
+{
+  FETCH_BB();
+
+  const char *sym_name = mrbc_get_irep_symbol(vm, b);
+
+  return send_by_name( vm, sym_name, regs, a, CALL_MAXARGS, 0 );
+}
+
+
+//================================================================
+/*! OP_SENDVB
+
+  R(a) = call(R(a),Syms(b),*R(a+1),&R(a+2))
+
+  @param  vm    pointer of VM.
+  @param  regs  pointer to regs
+  @retval 0  No error.
+*/
+static inline int op_sendvb( mrbc_vm *vm, mrbc_value *regs )
+{
+  FETCH_BB();
+
+  const char *sym_name = mrbc_get_irep_symbol(vm, b);
+
+  return send_by_name( vm, sym_name, regs, a, CALL_MAXARGS, 1 );
+}
+
+
+//================================================================
+/*! OP_SEND
 
   R(a) = call(R(a),Syms(b),R(a+1),...,R(a+c))
 
@@ -1068,7 +1114,26 @@ static inline int op_send( mrbc_vm *vm, mrbc_value *regs )
 
   const char *sym_name = mrbc_get_irep_symbol(vm, b);
 
-  return send_by_name( vm, sym_name, regs, a, c, (vm->inst[-4] == OP_SENDB) );
+  return send_by_name( vm, sym_name, regs, a, c, 0 );
+}
+
+
+//================================================================
+/*! OP_SENDB
+
+  R(a) = call(R(a),Syms(b),R(a+1),...,R(a+c))
+
+  @param  vm    pointer of VM.
+  @param  regs  pointer to regs
+  @retval 0  No error.
+*/
+static inline int op_sendb( mrbc_vm *vm, mrbc_value *regs )
+{
+  FETCH_BBB();
+
+  const char *sym_name = mrbc_get_irep_symbol(vm, b);
+
+  return send_by_name( vm, sym_name, regs, a, c, 1 );
 }
 
 
@@ -1117,28 +1182,28 @@ static inline int op_super( mrbc_vm *vm, mrbc_value *regs )
   // find super class
   mrbc_callinfo *callinfo = vm->callinfo_tail;
   mrbc_class *cls = callinfo->own_class;
+  mrbc_method method;
+
   assert( cls );
   cls = cls->super;
   assert( cls );
-
-  mrbc_proc *m = find_method_by_class( &cls, cls, callinfo->method_id );
-  if( m == 0 ) {
+  if( mrbc_find_method( &method, cls, callinfo->method_id ) == 0 ) {
     console_printf("Undefined method '%s' for %s\n",
 		   symid_to_str(callinfo->method_id), symid_to_str(cls->sym_id));
     return 1;
   }
 
-  if( m->c_func ) {
+  if( method.c_func ) {
     console_printf("Not support.\n");	// TODO
     return 1;
   }
 
   callinfo = mrbc_push_callinfo(vm, callinfo->method_id, a, b);
-  callinfo->own_class = cls;
+  callinfo->own_class = method.cls;
 
   // target irep
-  vm->pc_irep = m->irep;
-  vm->inst = m->irep->code;
+  vm->pc_irep = method.irep;
+  vm->inst = method.irep->code;
 
   // new regs
   vm->current_regs += a;
@@ -1199,6 +1264,8 @@ static inline int op_argary( mrbc_vm *vm, mrbc_value *regs )
 
   arg setup according to flags (23=m5:o5:r1:m5:k5:d1:b1)
 
+  flags: 0mmm_mmoo_ooor_mmmm_mkkk_kkdb
+
   @param  vm    pointer of VM.
   @param  regs  pointer to regs
   @retval 0  No error.
@@ -1213,12 +1280,18 @@ static inline int op_enter( mrbc_vm *vm, mrbc_value *regs )
 #define FLAG_DICT_PARAM (a & 0x2)
   int argc = vm->callinfo_tail->n_args;
 
+  // OP_SENDV or OP_SENDVB
+  int flag_sendv_pattern = ( argc == CALL_MAXARGS );
+  if( flag_sendv_pattern ){
+    argc = 1;
+  }
+
   if( a & 0xffc ) {	// check m2 and k parameter.
     console_printf("ArgumentError: not support m2 or keyword argument.\n");
     return 1;		// raise?
   }
 
-  if( argc < m1 && regs[0].tt != MRBC_TT_PROC ) {
+  if( !flag_sendv_pattern && argc < m1 && regs[0].tt != MRBC_TT_PROC ) {
     console_printf("ArgumentError: wrong number of arguments.\n");
     return 1;		// raise?
   }
@@ -1228,18 +1301,26 @@ static inline int op_enter( mrbc_vm *vm, mrbc_value *regs )
   regs[argc + 1].tt = MRBC_TT_EMPTY;
 
   // support yield [...] pattern
-  if( regs[0].tt == MRBC_TT_PROC &&
-      regs[1].tt == MRBC_TT_ARRAY && argc != m1 ) {
+  // support op_sendv pattern
+  int flag_yield_pattern = ( regs[0].tt == MRBC_TT_PROC &&
+			     regs[1].tt == MRBC_TT_ARRAY && argc != m1 );
+  if( flag_yield_pattern || flag_sendv_pattern ){
     mrbc_value argary = regs[1];
     regs[1].tt = MRBC_TT_EMPTY;
 
     int i;
-    for( i = 0; i < m1; i++ ) {
+    int copy_size;
+    if( flag_sendv_pattern ){
+      copy_size = mrbc_array_size(&argary);
+    } else {
+      copy_size = m1;
+    }
+    for( i = 0; i < copy_size; i++ ) {
       if( mrbc_array_size(&argary) <= i ) break;
       regs[i+1] = argary.array->data[i];
       mrbc_incref( &regs[i+1] );
     }
-    mrbc_array_delete( &argary );
+    //    mrbc_array_delete( &argary );
     argc = i;
   }
 
@@ -1286,8 +1367,16 @@ static inline int op_enter( mrbc_vm *vm, mrbc_value *regs )
   if( FLAG_DICT_PARAM ) {
     regs[i++] = dict;
   }
-  if( argc >= i ) i = argc + 1;
-  regs[i] = proc;
+
+  // proc の位置を求める
+  if( proc.tt == MRBC_TT_PROC ){
+    if( flag_sendv_pattern ){
+      // Nothing
+    } else {
+      if( argc >= i ) i = argc + 1;
+    }
+    regs[i] = proc;
+  }
   vm->callinfo_tail->n_args = i;
 
   // prepare for get default arguments.
@@ -1326,16 +1415,13 @@ static inline int op_return( mrbc_vm *vm, mrbc_value *regs )
   regs[0] = regs[a];
   regs[a].tt = MRBC_TT_EMPTY;
 
+  STOP_IF_TOPLEVEL();
+
+
+  mrbc_pop_callinfo(vm);
+
   // nregs to release
   int nregs = vm->pc_irep->nregs;
-
-  // restore irep,pc,reg
-  if( vm->callinfo_tail == NULL ){
-    // OP_RETURN in ensure
-    vm->exc = vm->exc_pending;
-    return 0;
-  }
-  mrbc_pop_callinfo(vm);
 
   // clear stacked arguments
   int i;
@@ -1383,6 +1469,8 @@ static inline int op_return_blk( mrbc_vm *vm, mrbc_value *regs )
   mrbc_decref( p_reg );
   *p_reg = regs[a];
   regs[a].tt = MRBC_TT_EMPTY;
+
+  STOP_IF_TOPLEVEL();
 
   mrbc_pop_callinfo(vm);
 
@@ -1909,6 +1997,15 @@ static inline int op_arycat( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_B();
 
+  if( regs[a].tt == MRBC_TT_NIL ){
+    // arycat(nil, [...]) #=> [...]
+    assert( regs[a+1].tt == MRBC_TT_ARRAY );
+    regs[a] = regs[a+1];
+    regs[a+1].tt = MRBC_TT_NIL;
+
+    return 0;
+  }
+
   assert( regs[a  ].tt == MRBC_TT_ARRAY );
   assert( regs[a+1].tt == MRBC_TT_ARRAY );
 
@@ -2103,13 +2200,14 @@ static inline int op_strcat( mrbc_vm *vm, mrbc_value *regs )
 
 #if MRBC_USE_STRING
   // call "to_s"
-  mrbc_sym sym_id = str_to_symid("to_s");
-  mrbc_proc *m = find_method(vm, &regs[a+1], sym_id);
-  if( m && m->c_func ){
-    m->func(vm, regs+a+1, 0);
-  }
+  mrbc_method method;
+  if( mrbc_find_method( &method, find_class_by_object(&regs[a+1]),
+			str_to_symid("to_s")) == 0 ) return 0;
+  if( !method.c_func ) return 0;	// TODO: Not support?
 
-  mrbc_string_append(&regs[a], &regs[a+1]);
+  method.func( vm, regs + a + 1, 0 );
+  mrbc_string_append( &regs[a], &regs[a+1] );
+  mrbc_decref_empty( &regs[a+1] );
 
 #else
   not_supported();
@@ -2266,39 +2364,40 @@ static inline int op_def( mrbc_vm *vm, mrbc_value *regs )
   assert( regs[a+1].tt == MRBC_TT_PROC );
 
   mrbc_class *cls = regs[a].cls;
-  const char *sym_name = mrbc_get_irep_symbol(vm, b);
-  mrbc_sym sym_id = str_to_symid(sym_name);
+  const char *name = mrbc_get_irep_symbol(vm, b);
+  mrbc_sym sym_id = str_to_symid( name );
   mrbc_proc *proc = regs[a+1].proc;
 
-  mrbc_set_vm_id(proc, 0);
-  proc->sym_id = sym_id;
+  mrbc_method *method = mrbc_raw_alloc( sizeof(mrbc_method) );
+  if( !method ) return -1; // ENOMEM
 
-  // add to class
-  proc->next = cls->procs;
-  cls->procs = proc;
+  method->type = 'M';
+  method->c_func = 0;
+  method->sym_id = sym_id;
+  method->irep = proc->irep;
+  method->next = cls->method_link;
+  cls->method_link = method;
 
   // checking same method
-  for( ;proc->next != NULL; proc = proc->next ) {
-    if( proc->next->sym_id == sym_id ) {
+  for( ;method->next != NULL; method = method->next ) {
+    if( method->next->sym_id == sym_id ) {
       // Found it. Unchain it in linked list and remove.
-      mrbc_value del_proc = {.tt = MRBC_TT_PROC};
-      del_proc.proc = proc->next;
-      proc->next = proc->next->next;
+      mrbc_method *del_method = method->next;
 
+      method->next = del_method->next;
       /* (note)
-	 Case c_func == 1 is defined by mrbc_define_method() function.
-	 That function uses mrbc_raw_alloc_no_free() to allocate memory.
-	 Thus not free this memory.
-	 Case c_func == 0 is defined by mrbc_proc_new() function.
+         Case c_func == 0 is defined by this ope-code.
+         Case c_func == 1 is defined by mrbc_define_method() function.
+         That function uses mrbc_raw_alloc_no_free() to allocate memory.
+         Thus not free this memory.
+         Case c_func == 2 is builtin C function. maybe create by OP_ALIAS.
       */
-      if( !del_proc.proc->c_func ) {
-	mrbc_decref( &del_proc );
-      }
+      if( del_method->c_func != 1 ) mrbc_raw_free( del_method );
+
       break;
     }
   }
 
-  regs[a+1].tt = MRBC_TT_EMPTY;
   return 0;
 }
 
@@ -2316,40 +2415,37 @@ static inline int op_alias( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_BB();
 
-  const char *sym_name_new = mrbc_get_irep_symbol(vm, a);
-  mrbc_sym sym_id_new = str_to_symid(sym_name_new);
-  const char *sym_name_old = mrbc_get_irep_symbol(vm, b);
-  mrbc_sym sym_id_old = str_to_symid(sym_name_old);
-
-  // find method only in this class.
-  mrb_proc *old_method = NULL;
+  const char *name_new = mrbc_get_irep_symbol(vm, a);
+  const char *name_org = mrbc_get_irep_symbol(vm, b);
+  mrbc_sym sym_id_new = str_to_symid(name_new);
+  mrbc_sym sym_id_org = str_to_symid(name_org);
   mrbc_class *cls = vm->target_class;
-  while( old_method == NULL && cls != NULL ){
-    mrb_proc *proc = cls->procs;
-    while( proc != NULL ) {
-      if( proc->sym_id == sym_id_old ){
-	old_method = proc;
-	break;
-      }
-      proc = proc->next;
-    }
-    cls = cls->super;
-  }
+  mrbc_method method_org;
 
-  if( !old_method ) {
-    console_printf("NameError: undefined_method '%s'\n", sym_name_old);
+  if( mrbc_find_method( &method_org, cls, sym_id_org ) == 0 ) {
+    console_printf("NameError: undefined method '%s'\n", name_org);
     return 0;
   }
 
-  // copy the Proc object
-  mrbc_proc *proc_alias = mrbc_alloc(0, sizeof(mrbc_proc));
-  if( !proc_alias ) return 0;// ENOMEM
-  memcpy( proc_alias, old_method, sizeof(mrbc_proc) );
+  // copy method and chain link list.
+  mrbc_method *method_new = mrbc_raw_alloc( sizeof(mrbc_method) );
+  if( !method_new ) return 0;	// ENOMEM
 
-  // register procs link.
-  proc_alias->sym_id = sym_id_new;
-  proc_alias->next = vm->target_class->procs;
-  vm->target_class->procs = proc_alias;
+  *method_new = method_org;
+  method_new->sym_id = sym_id_new;
+  method_new->next = cls->method_link;
+  cls->method_link = method_new;
+
+  // checking same method
+  //  see OP_DEF function. same it.
+  for( ;method_new->next != NULL; method_new = method_new->next ) {
+    if( method_new->next->sym_id == sym_id_new ) {
+      mrbc_method *del_method = method_new->next;
+      method_new->next = del_method->next;
+      if( del_method->c_func != 1 ) mrbc_raw_free( del_method );
+      break;
+    }
+  }
 
   return 0;
 }
@@ -2426,13 +2522,6 @@ static inline int op_ext( mrbc_vm *vm, mrbc_value *regs )
 static inline int op_stop( mrbc_vm *vm, mrbc_value *regs )
 {
   FETCH_Z();
-
-  if( vm->inst[-1] == OP_STOP ) {
-    int i;
-    for( i = 0; i < MAX_REGS_SIZE; i++ ) {
-      mrbc_decref_empty(&vm->regs[i]);
-    }
-  }
 
   vm->flag_preemption = 1;
 
@@ -2524,7 +2613,7 @@ mrbc_vm *mrbc_vm_open( struct VM *vm_arg )
 
   if( vm == NULL ) {
     // allocate memory.
-    vm = (mrbc_vm *)mrbc_raw_alloc( sizeof(mrbc_vm) );
+    vm = mrbc_raw_alloc( sizeof(mrbc_vm) );
     if( vm == NULL ) return NULL;
   }
 
@@ -2615,6 +2704,11 @@ void mrbc_vm_begin( struct VM *vm )
 */
 void mrbc_vm_end( struct VM *vm )
 {
+  int i;
+  for( i = 0; i < MAX_REGS_SIZE; i++ ) {
+    mrbc_decref_empty(&vm->regs[i]);
+  }
+
   mrbc_global_clear_vm_id();
   mrbc_free_all(vm);
 }
@@ -2743,10 +2837,10 @@ int mrbc_vm_run( struct VM *vm )
     case OP_RAISE:      ret = op_raise     (vm, regs); break;
     case OP_EPUSH:      ret = op_epush     (vm, regs); break;
     case OP_EPOP:       ret = op_epop      (vm, regs); break;
-    case OP_SENDV:      ret = op_dummy_BB  (vm, regs); break;
-    case OP_SENDVB:     ret = op_dummy_BB  (vm, regs); break;
-    case OP_SEND:       // fall through
-    case OP_SENDB:      ret = op_send      (vm, regs); break;
+    case OP_SENDV:      ret = op_sendv     (vm, regs); break;
+    case OP_SENDVB:     ret = op_sendvb    (vm, regs); break;
+    case OP_SEND:       ret = op_send      (vm, regs); break;
+    case OP_SENDB:      ret = op_sendb     (vm, regs); break;
     case OP_CALL:       ret = op_dummy_Z   (vm, regs); break;
     case OP_SUPER:      ret = op_super     (vm, regs); break;
     case OP_ARGARY:     ret = op_argary    (vm, regs); break;
