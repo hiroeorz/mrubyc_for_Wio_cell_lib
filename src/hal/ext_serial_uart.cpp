@@ -11,37 +11,38 @@
 #include "libmrubyc.h"
 #include "ext.h"
 
-#if defined ARDUINO_WIO_LTE
-
-#define WIO_UART_D23	    PINNAME_TO_PIN('B', 7)
-#define WIO_UART_D22        PINNAME_TO_PIN('B', 6)
-#define GROVE_UART_CORE     (0)                                 // USART1
-#define GROVE_UART_TX_PIN   WIO_UART_D22			// out
-#define GROVE_UART_RX_PIN   WIO_UART_D23			// in
-
-#endif
-
 // parity (0:なし, 1:奇数, 2:偶数)
 int get_serial_uart_config(int parity)
 {
-  if (parity == 0) { return SERIAL_8N1; }
-  if (parity == 1) { return SERIAL_8O1; }
-  if (parity == 2) { return SERIAL_8E1; }
+  if (parity == 0)
+  {
+    return SERIAL_8N1;
+  }
+  if (parity == 1)
+  {
+    return SERIAL_8O1;
+  }
+  if (parity == 2)
+  {
+    return SERIAL_8E1;
+  }
   return SERIAL_8N1;
 }
 
 static void class_serial_uart_initialize(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 1 && argc != 2) {
+  if (argc != 1 && argc != 2)
+  {
     DEBUG_PRINT("!!! invalid argc");
     SET_FALSE_RETURN();
     return;
   }
 
   int speed = GET_INT_ARG(1);
-  int parity  = 0; //パリティなし
+  int parity = 0; //パリティなし
 
-  if (argc == 2) {
+  if (argc == 2)
+  {
     parity = GET_INT_ARG(2); // 0:なし 1:奇数 2:偶数
   }
 
@@ -52,7 +53,8 @@ static void class_serial_uart_initialize(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_serial_uart_print(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 1) {
+  if (argc != 1)
+  {
     DEBUG_PRINT("!!! invalid argc");
     SET_FALSE_RETURN();
     return;
@@ -64,7 +66,8 @@ static void class_serial_uart_print(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_serial_uart_write(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 1) {
+  if (argc != 1)
+  {
     DEBUG_PRINT("!!! invalid argc");
     SET_FALSE_RETURN();
     return;
@@ -76,43 +79,52 @@ static void class_serial_uart_write(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_serial_uart_read(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 0) {
+  if (argc != 0)
+  {
     DEBUG_PRINT("!!! invalid argc");
     SET_NIL_RETURN();
     return;
   }
 
   char c = '\0';
-  
-  if (SerialUART.available() > 0) {
+
+  if (SerialUART.available() > 0)
+  {
     c = SerialUART.read();
     const char str[] = {c, '\0'};
     mrbc_value str_obj = mrbc_string_new_cstr(vm, str);
     SET_RETURN(str_obj);
-  } else {
+  }
+  else
+  {
     SET_NIL_RETURN();
   }
 }
 
 static void class_serial_uart_read_binary(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 0) {
+  if (argc != 0)
+  {
     DEBUG_PRINT("!!! invalid argc");
     SET_NIL_RETURN();
     return;
   }
-  
-  if (SerialUART.available() > 0) {
+
+  if (SerialUART.available() > 0)
+  {
     int val = SerialUART.read();
     SET_INT_RETURN(val);
-  } else {
+  }
+  else
+  {
     SET_NIL_RETURN();
   }
 }
 
 static void class_serial_uart_available(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 0) {
+  if (argc != 0)
+  {
     DEBUG_PRINT("!!! invalid argc");
     SET_NIL_RETURN();
     return;
@@ -124,15 +136,21 @@ static void class_serial_uart_available(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_serial_uart_clear(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 0) {
+  if (argc != 0)
+  {
     DEBUG_PRINT("!!! invalid argc");
     SET_NIL_RETURN();
     return;
   }
 
-  for (int i = 0; i < 16; i++) {
-    if (SerialUART.available() > 0) {
-      while (SerialUART.available() > 0) { SerialUART.read(); }
+  for (int i = 0; i < 16; i++)
+  {
+    if (SerialUART.available() > 0)
+    {
+      while (SerialUART.available() > 0)
+      {
+        SerialUART.read();
+      }
     }
 
     hal_delay(1); // sleep 1ms
@@ -143,7 +161,8 @@ static void class_serial_uart_clear(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_serial_uart_gets(mrb_vm *vm, mrb_value *v, int argc)
 {
-  if (argc != 0 && argc != 1 && argc != 2) {
+  if (argc != 0 && argc != 1 && argc != 2)
+  {
     DEBUG_PRINT("!!! invalid argc");
     SET_NIL_RETURN();
     return;
@@ -153,12 +172,14 @@ static void class_serial_uart_gets(mrb_vm *vm, mrb_value *v, int argc)
   char eol = '\r';
   int max_count = 1024;
 
-  if (argc == 1) {
+  if (argc == 1)
+  {
     uint8_t *str = GET_STRING_ARG(1);
     eol = str[0];
   }
 
-  if (argc == 2) {
+  if (argc == 2)
+  {
     max_count = GET_INT_ARG(2);
   }
 
@@ -166,16 +187,21 @@ static void class_serial_uart_gets(mrb_vm *vm, mrb_value *v, int argc)
   char recv[max_count + 1];
   int count = 0;
 
-  while(c != eol) {
-    if (count >= max_count) {
+  while (c != eol)
+  {
+    if (count >= max_count)
+    {
       break;
     }
 
-    if (SerialUART.available() > 0) {
+    if (SerialUART.available() > 0)
+    {
       c = SerialUART.read();
       recv[i] = c;
       i++;
-    } else {
+    }
+    else
+    {
       SET_NIL_RETURN();
       return;
     }
