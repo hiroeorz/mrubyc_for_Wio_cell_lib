@@ -23,5 +23,6 @@ void define_bmp280_class(void);
 void define_sht31_class(void);
 void define_sht35_class(void);
 void define_bme680_class(void);
+void define_i2c_rs485_class(void);
 
 #endif

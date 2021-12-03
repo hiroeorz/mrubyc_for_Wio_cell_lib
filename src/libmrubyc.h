@@ -18,7 +18,7 @@
 #include <WioCellularClient.h>
 #endif
 
-#include <PubSubClient.h>		// https://github.com/SeeedJP/pubsubclient
+#include <PubSubClient.h> // https://github.com/SeeedJP/pubsubclient
 #include <Wire.h>
 #include "mrubyc.h"
 #include "libmrubyc_config.h"
@@ -30,6 +30,6 @@
 #include <seeed_bme680.h>
 
 void mrbc_define_wio_methods(void);
-WioCellular* mrbc_get_wio3g_obj(void);
+WioCellular *mrbc_get_wio3g_obj(void);
 
 #endif
