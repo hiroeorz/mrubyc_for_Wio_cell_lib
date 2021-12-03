@@ -100,32 +100,6 @@ static void class_i2c_rs485_read(mrb_vm *vm, mrb_value *v, int argc)
   SET_INT_RETURN(val);
 }
 
-static void class_i2c_rs485_write_test(mrb_vm *vm, mrb_value *v, int argc)
-{
-  if (argc != 0)
-  {
-    DEBUG_PRINTLN("invalid argc");
-    SET_NIL_RETURN();
-    return;
-  }
-
-  i2cuart.SetRtsPin(1);
-
-  delay(5);
-  SerialUSB.print("sending modbus-rtu data......");
-  i2cuart.write(0x01); // Address
-  i2cuart.write(0x04); // Function
-  i2cuart.write(0x00); //開始アドレス（上位）
-  i2cuart.write(0x01); //開始アドレス（下位）
-  i2cuart.write(0x00); //レジスタ数　（上位）
-  i2cuart.write(0x02); //レジスタ数　（下位）
-  i2cuart.write(0x20); // CRC（上位）
-  i2cuart.write(0x0b); // CRC（下位）
-  delay(5);
-
-  SET_INT_RETURN(0);
-}
-
 static void class_i2c_rs485_read_values(mrb_vm *vm, mrb_value *v, int argc)
 {
   if (argc != 0)
@@ -135,18 +109,13 @@ static void class_i2c_rs485_read_values(mrb_vm *vm, mrb_value *v, int argc)
     return;
   }
 
-  SerialUSB.print("read_values");
   i2cuart.SetRtsPin(0);
 
   while (i2cuart.available() == 0)
   {
   }
 
-  SerialUSB.print("Data:");
-  SerialUSB.print("available: ");
-  SerialUSB.println(i2cuart.available());
-
-  mrbc_value array = mrbc_array_new(vm, 100);
+  mrbc_value array = mrbc_array_new(vm, 64);
 
   while (i2cuart.available() > 0)
   {
@@ -197,7 +166,6 @@ void define_i2c_rs485_class()
   mrbc_define_method(0, class_i2c_rs485, "available", class_i2c_rs485_available);
   mrbc_define_method(0, class_i2c_rs485, "write", class_i2c_rs485_write);
   mrbc_define_method(0, class_i2c_rs485, "read", class_i2c_rs485_read);
-  mrbc_define_method(0, class_i2c_rs485, "write_test", class_i2c_rs485_write_test);
   mrbc_define_method(0, class_i2c_rs485, "write_values", class_i2c_rs485_write_values);
   mrbc_define_method(0, class_i2c_rs485, "read_values", class_i2c_rs485_read_values);
 }
