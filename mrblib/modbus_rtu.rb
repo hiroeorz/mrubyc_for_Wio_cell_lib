@@ -1,13 +1,12 @@
 class ModbusRTU
 
+  attr_reader :address, :function
+  attr_accessor :data_list
+
   def initialize
     @address = nil
     @function = nil
     @data_list = []
-  end
-
-  def address
-    @address
   end
 
   def address=(val)
@@ -15,21 +14,9 @@ class ModbusRTU
     @address = val
   end
 
-  def function
-    @function
-  end
-
   def function=(val)
     puts "Invalid Function: #{val}" if val < 1 or 255 < val
     @function = val
-  end
-
-  def data_list
-    @data_list
-  end
-
-  def data_list=(array)
-    @data_list = array
   end
 
   #
