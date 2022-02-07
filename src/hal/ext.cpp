@@ -12,13 +12,13 @@
 
 bool mrbc_trans_cppbool_value(mrbc_vtype tt)
 {
-  if (tt == MRBC_TT_TRUE) {
+  if (tt == MRBC_TT_TRUE)
+  {
     return true;
   }
 
   return false;
 }
-
 
 void mrbc_define_wio_methods(void)
 {
@@ -31,12 +31,14 @@ void mrbc_define_wio_methods(void)
   define_sht31_class();
   define_sht35_class();
   define_bme680_class();
+  define_i2c_rs485_class();
 
   // mrblib以下のrubyソースから生成したバイトコードを読み込む.
   // src/hal/wio_mrb_lib.c
   extern const uint8_t mruby_wio_code[];
 
-  if (NULL == mrbc_create_task(mruby_wio_code, 0)) {
+  if (NULL == mrbc_create_task(mruby_wio_code, 0))
+  {
     hal_write_string((char *)"!!! wio bytecode load error\n");
   }
 

@@ -17,7 +17,7 @@
 
 // maximum number of VMs
 #if !defined(MAX_VM_COUNT)
-#define MAX_VM_COUNT 5
+#define MAX_VM_COUNT 2
 #endif
 
 // maximum size of registers
@@ -27,7 +27,7 @@
 
 // maximum number of symbols
 #if !defined(MAX_SYMBOLS_COUNT)
-#define MAX_SYMBOLS_COUNT 600
+#define MAX_SYMBOLS_COUNT 1024
 #endif
 
 // maximum number of exception depth
@@ -35,14 +35,18 @@
 #define MAX_EXCEPTION_COUNT 16
 #endif
 
-
 // memory management
 //  MRBC_ALLOC_16BIT or MRBC_ALLOC_24BIT
 #define MRBC_ALLOC_24BIT
 
+// Console new-line mode.
+//  If you need to convert LF to CRLF in console output, enable the following:
+// #define MRBC_CONVERT_CRLF
+
 /* Configure environment
    0: NOT USE
-   1: USE
+   1: USE float
+   2: USE double
 */
 // USE Float. Support Float class.
 #if !defined(MRBC_USE_FLOAT)
@@ -68,14 +72,13 @@
 #define MRBC_USE_STRING 1
 #endif
 
-
 /* Hardware dependent flags */
 
 /* Endian
    Define either MRBC_BIG_ENDIAN or MRBC_LITTLE_ENDIAN.
 */
 #if !defined(MRBC_BIG_ENDIAN) && !defined(MRBC_LITTLE_ENDIAN)
-# define MRBC_LITTLE_ENDIAN
+#define MRBC_LITTLE_ENDIAN
 #endif
 
 /* 32it alignment
@@ -89,7 +92,6 @@
 #endif
 
 // #define MRBC_NO_TIMER
-
 #if !defined(MRBC_NO_TIMER)
 #define MRBC_NO_TIMER
 #endif
